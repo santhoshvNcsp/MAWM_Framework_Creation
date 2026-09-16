@@ -1,0 +1,5 @@
+UD Putaway
+1)Scan ILPN - ilpn, item, qty, location(current code)(No Receive By Pallet)
+Receive By Pallet
+2)Scan ILPN - pallet, item,
+3)Scan ILPN
