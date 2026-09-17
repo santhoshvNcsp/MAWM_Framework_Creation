@@ -4,4 +4,3 @@ Feature: Vendor Specific Palletization
     Given user logged in
     And user completes "VendorSpecificReceiving"
     And user completes "PalletPutaway"
-    

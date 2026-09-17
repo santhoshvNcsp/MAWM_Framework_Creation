@@ -119,6 +119,273 @@ public class ASNOperations {
         System.out.println("=================================");
     }
 
+    @Then("user creates {int} asn in {string} status with {int} lineItems with {string} for vendor {string}")
+    public void createVendorSpecificASN(
+            int asnCnt,
+            String status,
+            int asnDetailCnt,
+            String shippedQtyCnt,
+            String vendorName)
+            throws InterruptedException {
+
+        // =========================================================
+        // VALIDATE INPUT
+        // =========================================================
+
+        if (asnCnt <= 0) {
+            throw new IllegalArgumentException(
+                    "ASN count must be greater than 0"
+            );
+        }
+
+        if (asnDetailCnt <= 0) {
+            throw new IllegalArgumentException(
+                    "Line item count must be greater than 0"
+            );
+        }
+
+        if (vendorName == null || vendorName.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Vendor name cannot be null or empty"
+            );
+        }
+
+        vendorName = vendorName.trim();
+
+        ItemDetails itemDetails = new ItemDetails();
+
+        // =========================================================
+        // VALIDATE ITEMS
+        // =========================================================
+
+        if (itemDetails.primaryItems.size() < asnDetailCnt) {
+            throw new IllegalArgumentException(
+                    "Not enough items available in primaryItems. "
+                            + "Required: "
+                            + asnDetailCnt
+                            + ", Available: "
+                            + itemDetails.primaryItems.size()
+            );
+        }
+
+        // =========================================================
+        // PARSE QUANTITIES
+        // =========================================================
+
+        String[] quantityArray =
+                shippedQtyCnt.split(",");
+
+        if (quantityArray.length != asnDetailCnt) {
+            throw new IllegalArgumentException(
+                    "Line item count ("
+                            + asnDetailCnt
+                            + ") does not match quantity count ("
+                            + quantityArray.length
+                            + ")"
+            );
+        }
+
+        List<String> quantities =
+                new ArrayList<>();
+
+        for (String quantity : quantityArray) {
+
+            if (quantity == null || quantity.trim().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Quantity cannot be empty"
+                );
+            }
+
+            quantities.add(quantity.trim());
+        }
+
+        // =========================================================
+        // STORE VENDOR
+        //
+        // This is the value coming directly from Feature File.
+        // =========================================================
+
+        ScenarioContext.set(
+                "VendorName",
+                vendorName
+        );
+
+        // =========================================================
+        // CREATE ASN DATA LIST
+        // =========================================================
+
+        List<ASNData> createdASNData =
+                new ArrayList<>();
+
+        System.out.println("=================================");
+        System.out.println("VENDOR SPECIFIC ASN CREATION");
+        System.out.println("=================================");
+        System.out.println("Total ASNs to Create: " + asnCnt);
+        System.out.println("Line Items per ASN: " + asnDetailCnt);
+        System.out.println("Quantities: " + quantities);
+        System.out.println("Vendor: " + vendorName);
+        System.out.println("=================================");
+
+        // =========================================================
+        // CREATE EACH ASN
+        // =========================================================
+
+        for (int i = 0; i < asnCnt; i++) {
+
+            System.out.println("=================================");
+            System.out.println(
+                    "Starting Creating Vendor ASN "
+                            + (i + 1)
+                            + " of "
+                            + asnCnt
+            );
+            System.out.println("=================================");
+
+            // =====================================================
+            // GET ITEMS FOR CURRENT ASN
+            // =====================================================
+
+            List<String> items =
+                    new ArrayList<>();
+
+            for (int j = 0; j < asnDetailCnt; j++) {
+
+                System.out.println(
+                        "Starting Creation of lineItem "
+                                + (j + 1)
+                );
+
+                items.add(
+                        itemDetails.primaryItems.get(j)
+                );
+            }
+
+            System.out.println(
+                    "Items for ASN "
+                            + (i + 1)
+                            + ": "
+                            + items
+            );
+
+            // =====================================================
+            // CREATE VENDOR SPECIFIC ASN
+            // =====================================================
+
+            String createdAsn =
+                    asnPage.provideVendorSpecificAsnDetails(
+                            items,
+                            shippedQtyCnt,
+                            i + 1,
+                            status,
+                            vendorName
+                    );
+
+            System.out.println(
+                    "Created ASN "
+                            + (i + 1)
+                            + ": "
+                            + createdAsn
+            );
+
+            // =====================================================
+            // CREATE ASN DATA
+            // =====================================================
+
+            ASNData asnData =
+                    new ASNData(createdAsn);
+
+            // =====================================================
+            // STORE ITEM DATA
+            // =====================================================
+
+            for (int j = 0; j < items.size(); j++) {
+
+                String item =
+                        items.get(j);
+
+                String quantity =
+                        quantities.get(j);
+
+                ItemData itemData =
+                        new ItemData(
+                                item,
+                                quantity
+                        );
+
+                asnData.addItem(itemData);
+
+                System.out.println(
+                        "Added Item: "
+                                + item
+                                + " | Qty: "
+                                + quantity
+                );
+            }
+
+            // =====================================================
+            // ADD ASN TO COMPLETE ASN LIST
+            // =====================================================
+
+            createdASNData.add(asnData);
+
+            System.out.println(
+                    "Stored ASN Data: "
+                            + createdAsn
+            );
+        }
+
+        // =========================================================
+        // STORE ALL ASN DATA
+        // =========================================================
+
+        ScenarioContext.set(
+                "CreatedASNData",
+                createdASNData
+        );
+
+        // =========================================================
+        // DEBUG OUTPUT
+        // =========================================================
+
+        System.out.println("=================================");
+        System.out.println("ALL CREATED VENDOR ASN DATA");
+        System.out.println("=================================");
+        System.out.println(
+                "Vendor: "
+                        + ScenarioContext.get("VendorName")
+        );
+
+        for (ASNData asnData :
+                createdASNData) {
+
+            System.out.println(
+                    "ASN: "
+                            + asnData.getAsn()
+            );
+
+            System.out.println("Items:");
+
+            for (ItemData itemData :
+                    asnData.getItems()) {
+
+                System.out.println(
+                        "  Item: "
+                                + itemData.getItem()
+                                + " | Qty: "
+                                + itemData.getShippedQty()
+                );
+            }
+
+            System.out.println(
+                    "ILPNs: "
+                            + asnData.getIlpns()
+            );
+        }
+
+        System.out.println("=================================");
+    }
+
+
     @Then("user creates {int} lpnLvlAsn in {string} status with {int} lineItems with {string}")
     public void userCreatesLpnLvlAsn(
             int asnCnt,

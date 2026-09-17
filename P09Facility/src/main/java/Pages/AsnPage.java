@@ -159,6 +159,16 @@ public class AsnPage extends BasePage {
     public WebElement currentLocation;
 
 
+    @FindBy(xpath = "//span[text()='Edit']")
+    public WebElement editAsn;
+
+    @FindBy(xpath = "//ion-input[@data-component-id='VendorId']//input")
+    public WebElement vendorId;
+
+    @FindBy(xpath = "//button[@data-component-id='Close-Icon']")
+    public WebElement closeAsnEdit;
+
+
     // =========================================================
     // EXISTING NAVIGATION METHOD
     // =========================================================
@@ -605,6 +615,510 @@ public class AsnPage extends BasePage {
                 () -> click(refresh, "Refreshing ASN Page" + driver.findElement(asnStatusValidation).getText()),
                 status);
 
+
+        return createdAsnId;
+    }
+
+    public String provideVendorSpecificAsnDetails(
+            List<String> items,
+            String shippedQtyAsn,
+            int asn,
+            String status,
+            String vendorName)
+            throws InterruptedException {
+
+        // =========================================================
+        // VALIDATE INPUT
+        // =========================================================
+
+        if (vendorName == null || vendorName.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Vendor name cannot be null or empty"
+            );
+        }
+
+        vendorName = vendorName.trim();
+
+        System.out.println(
+                "Creating ASN for Vendor: "
+                        + vendorName
+        );
+
+        System.out.println(
+                "Total Items: "
+                        + items.size()
+        );
+
+        // =========================================================
+        // PARSE QUANTITIES
+        // =========================================================
+
+        String[] quantitiesAsn =
+                shippedQtyAsn.split(",");
+
+        List<String> quantitiesList =
+                new ArrayList<>();
+
+        for (String quantity :
+                quantitiesAsn) {
+
+            quantitiesList.add(
+                    quantity.trim()
+            );
+        }
+
+        if (quantitiesList.size() != items.size()) {
+            throw new IllegalArgumentException(
+                    "Item count ("
+                            + items.size()
+                            + ") does not match quantity count ("
+                            + quantitiesList.size()
+                            + ")"
+            );
+        }
+
+        System.out.println(
+                "Quantities: "
+                        + quantitiesList
+        );
+
+        int totalDetail =
+                items.size();
+
+        int cntr = 0;
+
+        // =========================================================
+        // GENERATE ASN
+        // =========================================================
+
+        click(
+                createAsnButtonInAsnUi,
+                "Clicked generate ASN button"
+        );
+
+        // =========================================================
+        // GENERATE ASN ID
+        // =========================================================
+
+        Random random =
+                new Random();
+
+        type(
+                asnIdFromGenerateAsn,
+                "ASN190"
+                        + random.nextInt(100000),
+                "ASN ID"
+        );
+
+        System.out.println(
+                "Tried with normal click"
+        );
+
+        Thread.sleep(5000);
+
+        // =========================================================
+        // GET CREATED ASN
+        // =========================================================
+
+        String createdAsnId =
+                asnIdFromGenerateAsn
+                        .getAttribute("value");
+
+        if (createdAsnId == null
+                || createdAsnId.isBlank()) {
+
+            throw new IllegalStateException(
+                    "Created ASN ID is empty"
+            );
+        }
+
+        // =========================================================
+        // STORE ASN
+        // =========================================================
+
+        String ASN =
+                "CreatedASN " + asn;
+
+        ScenarioContext.set(
+                ASN,
+                createdAsnId
+        );
+
+        System.out.println(
+                "Stored in ScenarioContext: "
+                        + ASN
+                        + " = "
+                        + createdAsnId
+        );
+
+        // =========================================================
+        // SUBMIT ASN
+        // =========================================================
+
+        click(
+                submitAsnOnceCreated,
+                "Clicked Submit ASN button"
+        );
+
+        report.addReportStepWithoutScreenshot(
+                StepStatus.PASS,
+                "Created ASN ID: "
+                        + createdAsnId
+        );
+
+        report.addReportStepWithScreenshot(
+                StepStatus.PASS,
+                "ASN Created In Planning Status"
+        );
+
+        // =========================================================
+        // FILTER ASN
+        // =========================================================
+
+        type(
+                filterAsnById,
+                createdAsnId,
+                "Filter ASN By ID"
+        );
+
+        if (Objects.equals(
+                filterAsnById.getAttribute("value"),
+                createdAsnId)) {
+
+            pressEnter(
+                    filterAsnById,
+                    "Pressed Enter to filter ASN by ID"
+            );
+
+            report.addReportStepWithScreenshot(
+                    StepStatus.PASS,
+                    "Filtered ASN By ID: "
+                            + createdAsnId
+            );
+
+        } else {
+
+            report.addReportStepWithScreenshot(
+                    StepStatus.FAIL,
+                    "Failed to filter ASN By ID: "
+                            + createdAsnId
+            );
+
+            throw new IllegalStateException(
+                    "Failed to filter ASN by ID: "
+                            + createdAsnId
+            );
+        }
+
+        Thread.sleep(5000);
+
+        // =========================================================
+        // OPEN ASN
+        // =========================================================
+
+        WebElement asnGet =
+                wait.until(
+                        ExpectedConditions
+                                .elementToBeClickable(
+                                        By.xpath(
+                                                "//span[@data-component-id='AsnId' and normalize-space()='"
+                                                        + createdAsnId
+                                                        + "']"
+                                        )
+                                )
+                );
+
+        click(
+                asnGet,
+                "Clicked ASN ID from the list"
+        );
+
+        Thread.sleep(3000);
+
+        // =========================================================
+        // OPEN ASN DETAILS
+        // =========================================================
+
+        click(
+                clickRelatedLinks,
+                "Clicked Related Links"
+        );
+
+        click(
+                asnDetailsText,
+                "Clicked ASN Details"
+        );
+
+        // =========================================================
+        // CREATE ASN LINE DETAILS
+        // =========================================================
+
+        while (totalDetail != 0) {
+
+            Thread.sleep(3000);
+
+            click(
+                    createAsnDetail,
+                    "Clicked Create ASN Detail"
+            );
+
+            Thread.sleep(3000);
+
+            if (Objects.equals(
+                    asnIdInDetail.getAttribute("value"),
+                    createdAsnId)) {
+
+                // =================================================
+                // ITEM SEARCH
+                // =================================================
+
+                click(
+                        selectItemSearchInDetail,
+                        "Clicked Item Search"
+                );
+
+                click(
+                        showAllFiltersAsnDetail,
+                        "Clicked Show All Filters"
+                );
+
+                // =================================================
+                // ENTER ITEM
+                // =================================================
+
+                type(
+                        primaryBarcode,
+                        items.get(cntr),
+                        "Primary Barcode"
+                );
+
+                if (Objects.equals(
+                        primaryBarcode.getAttribute("value"),
+                        items.get(cntr))) {
+
+                    pressEnter(
+                            primaryBarcode,
+                            "Pressed Enter for Primary Barcode"
+                    );
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "Entered Primary Barcode: "
+                                    + items.get(cntr)
+                    );
+
+                    click(
+                            clickSearchAfterItemBarcodeEntered,
+                            "Clicked Search After Entering Primary Barcode"
+                    );
+
+                    click(
+                            selectItemFromDetailSearch,
+                            "Selected Item From Detail Search"
+                    );
+
+                    click(
+                            submitItemSearch,
+                            "Clicked Submit Item Search"
+                    );
+
+                    waitForPageLoad();
+
+                    // =================================================
+                    // SHIPPED QUANTITY
+                    // =================================================
+
+                    type(
+                            shippedQty,
+                            quantitiesList.get(cntr),
+                            "Shipped Quantity"
+                    );
+
+                    Thread.sleep(2000);
+
+                    // =================================================
+                    // QUANTITY UOM
+                    // =================================================
+
+                    click(
+                            quantityUomDrop,
+                            "Clicked Quantity UOM Drop"
+                    );
+
+                    Thread.sleep(2000);
+
+                    type(
+                            typeQtyUom,
+                            "Unit",
+                            "Type Quantity UOM"
+                    );
+
+                    click(
+                            selectUomAsUnit,
+                            "Selected UOM as Unit"
+                    );
+
+                    Thread.sleep(3000);
+
+                    click(
+                            saveAsnDetail,
+                            "Clicked Save ASN Detail"
+                    );
+
+                    cntr++;
+
+                } else {
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.FAIL,
+                            "Failed to enter Primary Barcode: "
+                                    + items.get(cntr)
+                    );
+
+                    throw new IllegalStateException(
+                            "Failed to enter Primary Barcode: "
+                                    + items.get(cntr)
+                    );
+                }
+
+                click(
+                        closeCreatedAsnDetail,
+                        "Clicked Close Created ASN Detail"
+                );
+            }
+
+            totalDetail--;
+        }
+
+        // =========================================================
+        // REDIRECT TO ASN PAGE
+        // =========================================================
+
+        click(
+                redirectToAsnFromAsnDetail,
+                "Redirected to ASN from ASN Details"
+        );
+
+        report.addReportStepWithScreenshot(
+                StepStatus.PASS,
+                "Redirected To ASNs Page From ASN Details Page"
+        );
+
+        // =========================================================
+        // WAIT FOR EXPECTED STATUS
+        // =========================================================
+
+        waitForStatus(
+                asnStatusValidation,
+                () -> click(
+                        refresh,
+                        "Refreshing ASN Page "
+                                + driver.findElement(
+                                asnStatusValidation
+                        ).getText()
+                ),
+                status
+        );
+
+        // =========================================================
+        // OPEN ASN AGAIN
+        // =========================================================
+
+        WebElement vendorAsnGet =
+                wait.until(
+                        ExpectedConditions
+                                .elementToBeClickable(
+                                        By.xpath(
+                                                "//span[@data-component-id='AsnId' and normalize-space()='"
+                                                        + createdAsnId
+                                                        + "']"
+                                        )
+                                )
+                );
+
+        vendorAsnGet.click();
+
+        Thread.sleep(3000);
+
+        // =========================================================
+        // MORE
+        // =========================================================
+
+        click(
+                more,
+                "Clicked More"
+        );
+
+        Thread.sleep(2000);
+
+        // =========================================================
+        // EDIT
+        // =========================================================
+
+        click(
+                editAsn,
+                "Clicked Edit ASN"
+        );
+
+        Thread.sleep(3000);
+
+        // =========================================================
+        // ENTER VENDOR
+        //
+        // IMPORTANT:
+        // vendorName comes directly from Feature File.
+        // =========================================================
+
+        type(
+                vendorId,
+                vendorName,
+                "Vendor ID"
+        );
+
+        System.out.println(
+                "Entered Vendor ID: "
+                        + vendorName
+        );
+        click(
+                saveAsnDetail,
+                "Clicked Save ASN Detail - First Time"
+        );
+        click(
+                closeAsnEdit,
+                "Closed ASN Edit"
+        );
+
+        Thread.sleep(2000);
+
+        // =========================================================
+        // STORE VENDOR
+        // =========================================================
+
+        ScenarioContext.set(
+                "VendorName",
+                vendorName
+        );
+
+        System.out.println(
+                "Vendor stored in ScenarioContext: "
+                        + ScenarioContext.get("VendorName")
+        );
+
+        // =========================================================
+        // FINAL ASN STATUS CHECK
+        // =========================================================
+
+        waitForStatus(
+                asnStatusValidation,
+                () -> click(
+                        refresh,
+                        "Refreshing ASN Page "
+                                + driver.findElement(
+                                asnStatusValidation
+                        ).getText()
+                ),
+                status
+        );
 
         return createdAsnId;
     }

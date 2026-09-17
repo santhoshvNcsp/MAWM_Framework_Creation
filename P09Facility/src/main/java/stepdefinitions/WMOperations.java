@@ -47,6 +47,10 @@ public class WMOperations {
                 System.out.println("Entered Palletize ILPN transaction");
                 mupPage.palletizeILPN();
                 break;
+            case "VendorSpecificReceiving":
+                System.out.println("Entered Vendor Specific Receiving");
+                mupPage.vendorSpecificReceiving();
+                break;
 
             default:
                 System.out.println("Unknown Screen");
