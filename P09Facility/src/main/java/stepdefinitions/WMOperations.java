@@ -11,6 +11,30 @@ import java.util.List;
 public class WMOperations {
     MUPPage mupPage = new MUPPage();
 
+    @And("user completes {string} with ASN {string} Item {string} Units {string}")
+    public void userCompletesWithAsnItemUnits(
+            String transaction,
+            String asn,
+            String item,
+            String units) throws InterruptedException {
+
+        if (transaction.equalsIgnoreCase("VendorSpecificReceiving")) {
+
+            mupPage.vendorSpecificReceiving(
+                    asn,
+                    item,
+                    units
+            );
+
+            return;
+        }
+
+        throw new IllegalArgumentException(
+                "Unsupported transaction for ASN/Item/Units: "
+                        + transaction
+        );
+    }
+
     @And("user completes {string}")
     public void InboundOperations(String process) throws InterruptedException {
         switch (process) {
@@ -51,10 +75,16 @@ public class WMOperations {
                 System.out.println("Entered Vendor Specific Receiving");
                 mupPage.vendorSpecificReceiving();
                 break;
+            case "Putaway":
+                System.out.println("Entered Putaway - determining putaway type");
+                mupPage.performPutaway();
+                break;
+
 
             default:
                 System.out.println("Unknown Screen");
                 break;
         }
     }
+
 }

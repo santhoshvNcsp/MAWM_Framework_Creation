@@ -88,6 +88,9 @@
             @FindBy(xpath = "//input[@placeholder='Scan iLPN']")
             public WebElement scanILPN;
 
+            @FindBy(xpath = "//span[@data-component-id='VendorId']")
+            public WebElement vendorId;
+
                     private final By asnStatusValidation =
                         By.xpath("(//div[@data-component-id='AsnStatusDescription'])[1]");
 
@@ -178,6 +181,12 @@
                 if (transaction.equalsIgnoreCase("ReceiveByUnit")) {
 
                     receiveByUnitEachLpn();
+
+                    return;
+                }
+                else if (transaction.equalsIgnoreCase("Putaway")) {
+
+                    performPutaway();
 
                     return;
                 }
@@ -2067,348 +2076,823 @@
         //
         //        report.addReportStepWithScreenshot(StepStatus.PASS, "Pallet Putaway completed for Pallet: " + palletId + " | Location: " + location);
         //    }
-            public void palletPutaway() throws InterruptedException {
+//            public void palletPutaway() throws InterruptedException {
+//
+//                // =========================================================
+//                // GET PALLET ID FROM SCENARIO CONTEXT
+//                // =========================================================
+//
+//                String palletId =
+//                        (String) ScenarioContext.get("CreatedPalletId");
+//
+//                if (palletId == null || palletId.isBlank()) {
+//
+//                    throw new IllegalStateException(
+//                            "No Created Pallet ID found in ScenarioContext"
+//                    );
+//                }
+//
+//                palletId = palletId.trim();
+//
+//
+//                System.out.println("======================================");
+//                System.out.println("STARTING PALLET PUTAWAY");
+//                System.out.println("Pallet ID: " + palletId);
+//                System.out.println("======================================");
+//
+//
+//                // =========================================================
+//                // GET NEXT RESERVE LOCATION
+//                // =========================================================
+//
+//                LocationDetails locationDetails =
+//                        new LocationDetails();
+//
+//                String location =
+//                        locationDetails.getNextReserveLocation();
+//
+//                if (location == null || location.isBlank()) {
+//
+//                    throw new IllegalStateException(
+//                            "No reserve location available for Pallet Putaway"
+//                    );
+//                }
+//
+//                location = location.trim();
+//
+//                System.out.println(
+//                        "Assigned Location: " + location
+//                );
+//
+//
+//                // =========================================================
+//                // OPEN WM MOBILE
+//                // =========================================================
+//
+//                click(
+//                        menuToggleButton,
+//                        "Menu Toggle Clicked"
+//                );
+//
+//                Thread.sleep(4000);
+//
+//
+//                type(
+//                        searchBarInLandingPage,
+//                        "WM Mobile",
+//                        "Search Bar in Landing Page"
+//                );
+//
+//
+//                // =========================================================
+//                // STORE PARENT WINDOW
+//                // =========================================================
+//
+//                String parentWindowId =
+//                        driver.getWindowHandle();
+//
+//                ScenarioContext.set(
+//                        "parentWindowId",
+//                        parentWindowId
+//                );
+//
+//
+//                // =========================================================
+//                // OPEN WM MOBILE
+//                // =========================================================
+//
+//                click(
+//                        clickWmMobileFromMenu,
+//                        "Click WM Mobile from Menu"
+//                );
+//
+//                waitForPageLoad();
+//
+//                Thread.sleep(5000);
+//
+//
+//                // =========================================================
+//                // SWITCH TO WM MOBILE WINDOW
+//                // =========================================================
+//
+//                for (String handle : driver.getWindowHandles()) {
+//
+//                    if (!handle.equals(parentWindowId)) {
+//
+//                        driver.switchTo().window(handle);
+//
+//                        break;
+//                    }
+//                }
+//
+//                Thread.sleep(5000);
+//
+//
+//                // =========================================================
+//                // OPEN 190 USER DIRECTED
+//                // =========================================================
+//
+//                type(
+//                        searchBarInWmMobile,
+//                        "190 User Directed",
+//                        "Search Bar in WM Mobile(190 User Directed)"
+//                );
+//
+//                Thread.sleep(3000);
+//
+//
+//                click(
+//                        clickUD,
+//                        "Clicked 190 User Directed"
+//                );
+//
+//                Thread.sleep(4000);
+//
+//                report.addReportStepWithScreenshot(
+//                        StepStatus.PASS,
+//                        "User Entered 190 Putaway Transaction"
+//                );
+//
+//
+//                // =========================================================
+//                // SCAN PALLET ID
+//                // =========================================================
+//
+//                type(
+//                        scanContainer,
+//                        palletId,
+//                        "Scan Pallet ID in 190 User Directed"
+//                );
+//
+//                Thread.sleep(2000);
+//
+//
+//                pressEnter(
+//                        scanContainer,
+//                        "Pressed Enter for Pallet ID in 190 User Directed"
+//                );
+//
+//                Thread.sleep(3000);
+//
+//                report.addReportStepWithScreenshot(
+//                        StepStatus.PASS,
+//                        "User Scanned the Pallet ID "
+//                                + palletId
+//                                + " in 190 User Directed Transaction"
+//                );
+//
+//
+//                System.out.println(
+//                        "Scanned Pallet ID: " + palletId
+//                );
+//
+//
+//                // =========================================================
+//                // SCAN STORAGE LOCATION
+//                // =========================================================
+//
+//                type(
+//                        scanLocUD,
+//                        location,
+//                        "Scan Location in 190 User Directed"
+//                );
+//
+//                Thread.sleep(2000);
+//
+//
+//                pressEnter(
+//                        scanLocUD,
+//                        "Pressed Enter for Location in 190 User Directed"
+//                );
+//
+//                Thread.sleep(10000);
+//
+//                report.addReportStepWithScreenshot(
+//                        StepStatus.PASS,
+//                        "User Scanned the Location "
+//                                + location
+//                                + " in 190 User Directed Transaction"
+//                );
+//
+//
+//                // =========================================================
+//                // CLOSE WM MOBILE
+//                // =========================================================
+//
+//                driver.close();
+//
+//
+//                // =========================================================
+//                // RETURN TO PARENT WINDOW
+//                // =========================================================
+//
+//                driver.switchTo().window(parentWindowId);
+//
+//
+//                // =========================================================
+//                // PALLET PUTAWAY COMPLETED
+//                // =========================================================
+//
+//                System.out.println("======================================");
+//                System.out.println("PALLET PUTAWAY COMPLETED");
+//                System.out.println(
+//                        "Pallet ID: "
+//                                + palletId
+//                                + " | Location: "
+//                                + location
+//                );
+//                System.out.println("======================================");
+//
+//
+//                // =========================================================
+//                // GET ALL CREATED ASN DATA
+//                // =========================================================
+//
+//                @SuppressWarnings("unchecked")
+//                List<ASNData> createdASNData =
+//                        (List<ASNData>)
+//                                ScenarioContext.get(
+//                                        "CreatedASNData"
+//                                );
+//
+//                if (createdASNData == null
+//                        || createdASNData.isEmpty()) {
+//
+//                    throw new IllegalStateException(
+//                            "No Created ASN data found in ScenarioContext"
+//                    );
+//                }
+//
+//
+//                // =========================================================
+//                // VERIFY EACH ASN
+//                // =========================================================
+//
+//                for (ASNData asnData : createdASNData) {
+//
+//                    String asnId =
+//                            asnData.getAsn();
+//
+//                    if (asnId == null || asnId.isBlank()) {
+//
+//                        throw new IllegalStateException(
+//                                "ASN ID is null or empty in ASNData"
+//                        );
+//                    }
+//
+//
+//                    // =====================================================
+//                    // GET ILPNs FOR CURRENT ASN
+//                    // =====================================================
+//
+//                    List<ILPNData> ilpnDataList =
+//                            asnData.getIlpns();
+//
+//                    if (ilpnDataList == null
+//                            || ilpnDataList.isEmpty()) {
+//
+//                        throw new IllegalStateException(
+//                                "No ILPNs found for ASN: "
+//                                        + asnId
+//                        );
+//                    }
+//
+//
+//                    // =====================================================
+//                    // CREATE ILPN STRING LIST
+//                    // =====================================================
+//
+//                    List<String> ilpns =
+//                            new ArrayList<>();
+//
+//                    Map<String, String> ilpnLocationMap =
+//                            getIlpnLocationMap();
+//
+//                    for (ILPNData ilpnData : ilpnDataList) {
+//
+//                        String ilpn =
+//                                ilpnData.getIlpn();
+//
+//                        if (ilpn == null || ilpn.isBlank()) {
+//                            throw new IllegalStateException(
+//                                    "ILPN is null or empty for ASN: "
+//                                            + asnId
+//                            );
+//                        }
+//
+//                        ilpn = ilpn.trim();
+//
+//                        ilpns.add(ilpn);
+//
+//                        // Store ILPN -> Putaway Location
+//                        ilpnLocationMap.put(
+//                                ilpn,
+//                                location
+//                        );
+//                        System.out.println(
+//                                "Stored ILPN Location: "
+//                                        + ilpn
+//                                        + " -> "
+//                                        + location
+//                        );
+//                    }
+//                    System.out.println("STARTING PALLET ILPN VERIFICATION");
+//                    System.out.println("ASN: " + asnId);
+//                    System.out.println("Pallet ID: " + palletId);
+//                    System.out.println("Putaway Location: " + location);
+//                    System.out.println("ILPN Count: " + ilpns.size());
+//                    AsnPage asnPage =
+//                            new AsnPage();
+//                    asnPage.verifyILPNLocation(
+//                            asnId,
+//                            ilpns
+//                    );
+//                }
+//                report.addReportStepWithScreenshot(
+//                        StepStatus.PASS,
+//                        "Pallet Putaway and ILPN Verification completed "
+//                                + "for Pallet: "
+//                                + palletId
+//                                + " | Location: "
+//                                + location
+//                );
+//            }
+        public void palletPutaway() throws InterruptedException {
 
-                // =========================================================
-                // GET PALLET ID FROM SCENARIO CONTEXT
-                // =========================================================
+            // =========================================================
+            // GET PALLET ID FROM SCENARIO CONTEXT
+            // =========================================================
 
-                String palletId =
-                        (String) ScenarioContext.get("CreatedPalletId");
+            String palletId =
+                    (String) ScenarioContext.get("CreatedPalletId");
 
-                if (palletId == null || palletId.isBlank()) {
+            if (palletId == null || palletId.isBlank()) {
+
+                throw new IllegalStateException(
+                        "No Created Pallet ID found in ScenarioContext"
+                );
+            }
+
+            palletId = palletId.trim();
+
+
+            System.out.println("======================================");
+            System.out.println("STARTING PALLET PUTAWAY");
+            System.out.println("Pallet ID: " + palletId);
+            System.out.println("======================================");
+
+
+            // =========================================================
+            // GET NEXT RESERVE LOCATION
+            // =========================================================
+
+            LocationDetails locationDetails =
+                    new LocationDetails();
+
+            String location =
+                    locationDetails.getNextReserveLocation();
+
+            if (location == null || location.isBlank()) {
+
+                throw new IllegalStateException(
+                        "No reserve location available for Pallet Putaway"
+                );
+            }
+
+            location = location.trim();
+
+            System.out.println(
+                    "Assigned Location: " + location
+            );
+
+
+            // =========================================================
+            // OPEN WM MOBILE
+            // =========================================================
+
+            click(
+                    menuToggleButton,
+                    "Menu Toggle Clicked"
+            );
+
+            Thread.sleep(4000);
+
+
+            type(
+                    searchBarInLandingPage,
+                    "WM Mobile",
+                    "Search Bar in Landing Page"
+            );
+
+
+            // =========================================================
+            // STORE PARENT WINDOW
+            // =========================================================
+
+            String parentWindowId =
+                    driver.getWindowHandle();
+
+            ScenarioContext.set(
+                    "parentWindowId",
+                    parentWindowId
+            );
+
+
+            // =========================================================
+            // OPEN WM MOBILE
+            // =========================================================
+
+            click(
+                    clickWmMobileFromMenu,
+                    "Click WM Mobile from Menu"
+            );
+
+            waitForPageLoad();
+
+            Thread.sleep(5000);
+
+
+            // =========================================================
+            // SWITCH TO WM MOBILE WINDOW
+            // =========================================================
+
+            for (String handle : driver.getWindowHandles()) {
+
+                if (!handle.equals(parentWindowId)) {
+
+                    driver.switchTo().window(handle);
+
+                    break;
+                }
+            }
+
+            Thread.sleep(5000);
+
+
+            // =========================================================
+            // OPEN 190 USER DIRECTED
+            // =========================================================
+
+            type(
+                    searchBarInWmMobile,
+                    "190 User Directed",
+                    "Search Bar in WM Mobile(190 User Directed)"
+            );
+
+            Thread.sleep(3000);
+
+
+            click(
+                    clickUD,
+                    "Clicked 190 User Directed"
+            );
+
+            Thread.sleep(4000);
+
+            report.addReportStepWithScreenshot(
+                    StepStatus.PASS,
+                    "User Entered 190 Putaway Transaction"
+            );
+
+
+            // =========================================================
+            // SCAN PALLET ID
+            // =========================================================
+
+            type(
+                    scanContainer,
+                    palletId,
+                    "Scan Pallet ID in 190 User Directed"
+            );
+
+            Thread.sleep(2000);
+
+
+            pressEnter(
+                    scanContainer,
+                    "Pressed Enter for Pallet ID in 190 User Directed"
+            );
+
+            Thread.sleep(3000);
+
+            report.addReportStepWithScreenshot(
+                    StepStatus.PASS,
+                    "User Scanned the Pallet ID "
+                            + palletId
+                            + " in 190 User Directed Transaction"
+            );
+
+
+            System.out.println(
+                    "Scanned Pallet ID: " + palletId
+            );
+
+
+            // =========================================================
+            // SCAN STORAGE LOCATION
+            // =========================================================
+
+            type(
+                    scanLocUD,
+                    location,
+                    "Scan Location in 190 User Directed"
+            );
+
+            Thread.sleep(2000);
+
+
+            pressEnter(
+                    scanLocUD,
+                    "Pressed Enter for Location in 190 User Directed"
+            );
+
+            Thread.sleep(10000);
+
+            report.addReportStepWithScreenshot(
+                    StepStatus.PASS,
+                    "User Scanned the Location "
+                            + location
+                            + " in 190 User Directed Transaction"
+            );
+
+
+            // =========================================================
+            // CLOSE WM MOBILE
+            // =========================================================
+
+            driver.close();
+
+
+            // =========================================================
+            // RETURN TO PARENT WINDOW
+            // =========================================================
+
+            driver.switchTo().window(parentWindowId);
+
+            System.out.println(
+                    "Returned to parent window after Pallet Putaway"
+            );
+
+
+            // =========================================================
+            // PALLET PUTAWAY COMPLETED
+            // =========================================================
+
+            System.out.println("======================================");
+            System.out.println("PALLET PUTAWAY COMPLETED");
+            System.out.println(
+                    "Pallet ID: "
+                            + palletId
+                            + " | Location: "
+                            + location
+            );
+            System.out.println("======================================");
+
+
+            // =========================================================
+            // GET ALL CREATED ASN DATA
+            // =========================================================
+
+            @SuppressWarnings("unchecked")
+            List<ASNData> createdASNData =
+                    (List<ASNData>)
+                            ScenarioContext.get(
+                                    "CreatedASNData"
+                            );
+
+            if (createdASNData == null
+                    || createdASNData.isEmpty()) {
+
+                throw new IllegalStateException(
+                        "No Created ASN data found in ScenarioContext"
+                );
+            }
+
+
+            // =========================================================
+            // VERIFY EACH ASN
+            // =========================================================
+
+            for (ASNData asnData : createdASNData) {
+
+                String asnId =
+                        asnData.getAsn();
+
+                if (asnId == null || asnId.isBlank()) {
 
                     throw new IllegalStateException(
-                            "No Created Pallet ID found in ScenarioContext"
+                            "ASN ID is null or empty in ASNData"
                     );
                 }
 
-                palletId = palletId.trim();
+                asnId = asnId.trim();
 
 
-                System.out.println("======================================");
-                System.out.println("STARTING PALLET PUTAWAY");
-                System.out.println("Pallet ID: " + palletId);
-                System.out.println("======================================");
+                // =====================================================
+                // GET ILPNs FOR CURRENT ASN
+                // =====================================================
 
+                List<ILPNData> ilpnDataList =
+                        asnData.getIlpns();
 
-                // =========================================================
-                // GET NEXT RESERVE LOCATION
-                // =========================================================
-
-                LocationDetails locationDetails =
-                        new LocationDetails();
-
-                String location =
-                        locationDetails.getNextReserveLocation();
-
-                if (location == null || location.isBlank()) {
+                if (ilpnDataList == null
+                        || ilpnDataList.isEmpty()) {
 
                     throw new IllegalStateException(
-                            "No reserve location available for Pallet Putaway"
-                    );
-                }
-
-                location = location.trim();
-
-                System.out.println(
-                        "Assigned Location: " + location
-                );
-
-
-                // =========================================================
-                // OPEN WM MOBILE
-                // =========================================================
-
-                click(
-                        menuToggleButton,
-                        "Menu Toggle Clicked"
-                );
-
-                Thread.sleep(4000);
-
-
-                type(
-                        searchBarInLandingPage,
-                        "WM Mobile",
-                        "Search Bar in Landing Page"
-                );
-
-
-                // =========================================================
-                // STORE PARENT WINDOW
-                // =========================================================
-
-                String parentWindowId =
-                        driver.getWindowHandle();
-
-                ScenarioContext.set(
-                        "parentWindowId",
-                        parentWindowId
-                );
-
-
-                // =========================================================
-                // OPEN WM MOBILE
-                // =========================================================
-
-                click(
-                        clickWmMobileFromMenu,
-                        "Click WM Mobile from Menu"
-                );
-
-                waitForPageLoad();
-
-                Thread.sleep(5000);
-
-
-                // =========================================================
-                // SWITCH TO WM MOBILE WINDOW
-                // =========================================================
-
-                for (String handle : driver.getWindowHandles()) {
-
-                    if (!handle.equals(parentWindowId)) {
-
-                        driver.switchTo().window(handle);
-
-                        break;
-                    }
-                }
-
-                Thread.sleep(5000);
-
-
-                // =========================================================
-                // OPEN 190 USER DIRECTED
-                // =========================================================
-
-                type(
-                        searchBarInWmMobile,
-                        "190 User Directed",
-                        "Search Bar in WM Mobile(190 User Directed)"
-                );
-
-                Thread.sleep(3000);
-
-
-                click(
-                        clickUD,
-                        "Clicked 190 User Directed"
-                );
-
-                Thread.sleep(4000);
-
-                report.addReportStepWithScreenshot(
-                        StepStatus.PASS,
-                        "User Entered 190 Putaway Transaction"
-                );
-
-
-                // =========================================================
-                // SCAN PALLET ID
-                // =========================================================
-
-                type(
-                        scanContainer,
-                        palletId,
-                        "Scan Pallet ID in 190 User Directed"
-                );
-
-                Thread.sleep(2000);
-
-
-                pressEnter(
-                        scanContainer,
-                        "Pressed Enter for Pallet ID in 190 User Directed"
-                );
-
-                Thread.sleep(3000);
-
-                report.addReportStepWithScreenshot(
-                        StepStatus.PASS,
-                        "User Scanned the Pallet ID "
-                                + palletId
-                                + " in 190 User Directed Transaction"
-                );
-
-
-                System.out.println(
-                        "Scanned Pallet ID: " + palletId
-                );
-
-
-                // =========================================================
-                // SCAN STORAGE LOCATION
-                // =========================================================
-
-                type(
-                        scanLocUD,
-                        location,
-                        "Scan Location in 190 User Directed"
-                );
-
-                Thread.sleep(2000);
-
-
-                pressEnter(
-                        scanLocUD,
-                        "Pressed Enter for Location in 190 User Directed"
-                );
-
-                Thread.sleep(10000);
-
-                report.addReportStepWithScreenshot(
-                        StepStatus.PASS,
-                        "User Scanned the Location "
-                                + location
-                                + " in 190 User Directed Transaction"
-                );
-
-
-                // =========================================================
-                // CLOSE WM MOBILE
-                // =========================================================
-
-                driver.close();
-
-
-                // =========================================================
-                // RETURN TO PARENT WINDOW
-                // =========================================================
-
-                driver.switchTo().window(parentWindowId);
-
-
-                // =========================================================
-                // PALLET PUTAWAY COMPLETED
-                // =========================================================
-
-                System.out.println("======================================");
-                System.out.println("PALLET PUTAWAY COMPLETED");
-                System.out.println(
-                        "Pallet ID: "
-                                + palletId
-                                + " | Location: "
-                                + location
-                );
-                System.out.println("======================================");
-
-
-                // =========================================================
-                // GET ALL CREATED ASN DATA
-                // =========================================================
-
-                @SuppressWarnings("unchecked")
-                List<ASNData> createdASNData =
-                        (List<ASNData>)
-                                ScenarioContext.get(
-                                        "CreatedASNData"
-                                );
-
-                if (createdASNData == null
-                        || createdASNData.isEmpty()) {
-
-                    throw new IllegalStateException(
-                            "No Created ASN data found in ScenarioContext"
+                            "No ILPNs found for ASN: "
+                                    + asnId
                     );
                 }
 
 
-                // =========================================================
-                // VERIFY EACH ASN
-                // =========================================================
+                // =====================================================
+                // CREATE ILPN STRING LIST
+                // =====================================================
 
-                for (ASNData asnData : createdASNData) {
+                List<String> ilpns =
+                        new ArrayList<>();
 
-                    String asnId =
-                            asnData.getAsn();
+                Map<String, String> ilpnLocationMap =
+                        getIlpnLocationMap();
 
-                    if (asnId == null || asnId.isBlank()) {
+
+                for (ILPNData ilpnData : ilpnDataList) {
+
+                    String ilpn =
+                            ilpnData.getIlpn();
+
+                    if (ilpn == null || ilpn.isBlank()) {
 
                         throw new IllegalStateException(
-                                "ASN ID is null or empty in ASNData"
-                        );
-                    }
-
-
-                    // =====================================================
-                    // GET ILPNs FOR CURRENT ASN
-                    // =====================================================
-
-                    List<ILPNData> ilpnDataList =
-                            asnData.getIlpns();
-
-                    if (ilpnDataList == null
-                            || ilpnDataList.isEmpty()) {
-
-                        throw new IllegalStateException(
-                                "No ILPNs found for ASN: "
+                                "ILPN is null or empty for ASN: "
                                         + asnId
                         );
                     }
 
+                    ilpn = ilpn.trim();
 
-                    // =====================================================
-                    // CREATE ILPN STRING LIST
-                    // =====================================================
+                    ilpns.add(ilpn);
 
-                    List<String> ilpns =
-                            new ArrayList<>();
 
-                    Map<String, String> ilpnLocationMap =
-                            getIlpnLocationMap();
+                    // =================================================
+                    // STORE ILPN -> PUTAWAY LOCATION
+                    // =================================================
 
-                    for (ILPNData ilpnData : ilpnDataList) {
+                    ilpnLocationMap.put(
+                            ilpn,
+                            location
+                    );
 
-                        String ilpn =
-                                ilpnData.getIlpn();
-
-                        if (ilpn == null || ilpn.isBlank()) {
-                            throw new IllegalStateException(
-                                    "ILPN is null or empty for ASN: "
-                                            + asnId
-                            );
-                        }
-
-                        ilpn = ilpn.trim();
-
-                        ilpns.add(ilpn);
-
-                        // Store ILPN -> Putaway Location
-                        ilpnLocationMap.put(
-                                ilpn,
-                                location
-                        );
-                        System.out.println(
-                                "Stored ILPN Location: "
-                                        + ilpn
-                                        + " -> "
-                                        + location
-                        );
-                    }
-                    System.out.println("STARTING PALLET ILPN VERIFICATION");
-                    System.out.println("ASN: " + asnId);
-                    System.out.println("Pallet ID: " + palletId);
-                    System.out.println("Putaway Location: " + location);
-                    System.out.println("ILPN Count: " + ilpns.size());
-                    AsnPage asnPage =
-                            new AsnPage();
-                    asnPage.verifyILPNLocation(
-                            asnId,
-                            ilpns,
-                            palletId
+                    System.out.println(
+                            "Stored ILPN Location: "
+                                    + ilpn
+                                    + " -> "
+                                    + location
                     );
                 }
-                report.addReportStepWithScreenshot(
-                        StepStatus.PASS,
-                        "Pallet Putaway and ILPN Verification completed "
-                                + "for Pallet: "
-                                + palletId
-                                + " | Location: "
-                                + location
+
+
+                // =====================================================
+                // NAVIGATE BACK TO ASN UI
+                //
+                // IMPORTANT:
+                // verifyILPNLocation() expects to start from ASN LIST.
+                // It will itself:
+                //
+                //     Click ASN
+                //     -> Related Links
+                //     -> LPN Inventory
+                //     -> Refresh
+                //     -> Validate Location
+                // =====================================================
+
+                System.out.println(
+                        "Navigating to ASN UI for location verification: "
+                                + asnId
+                );
+
+
+                // =====================================================
+                // MENU TOGGLE
+                // =====================================================
+
+                click(
+                        menuToggleButton,
+                        "Menu Toggle - Post Putaway"
+                );
+
+                Thread.sleep(4000);
+
+
+                // =====================================================
+                // OPEN ASNs UI
+                // =====================================================
+
+                type(
+                        searchBarInLandingPage,
+                        "ASNs",
+                        "ASN UI - Post Putaway"
+                );
+
+                Thread.sleep(3000);
+
+
+                click(
+                        clickAsnSFromMenu,
+                        "Clicked ASNs - Post Putaway"
+                );
+
+                Thread.sleep(4000);
+
+
+                // =====================================================
+                // FILTER CURRENT ASN
+                // =====================================================
+
+                type(
+                        filterAsnById,
+                        asnId,
+                        "Filter ASN By ID - Post Putaway"
+                );
+
+                Thread.sleep(2000);
+
+
+                pressEnter(
+                        filterAsnById,
+                        "Pressed Enter for ASN Filter - Post Putaway"
+                );
+
+                Thread.sleep(3000);
+
+
+                click(
+                        refresh,
+                        "Refreshed ASN UI - Post Putaway"
+                );
+
+                Thread.sleep(3000);
+
+
+                // =====================================================
+                // START ILPN LOCATION VERIFICATION
+                // =====================================================
+
+                System.out.println(
+                        "STARTING PALLET ILPN VERIFICATION"
+                );
+
+                System.out.println(
+                        "ASN: " + asnId
+                );
+
+                System.out.println(
+                        "Pallet ID: " + palletId
+                );
+
+                System.out.println(
+                        "Putaway Location: " + location
+                );
+
+                System.out.println(
+                        "ILPN Count: " + ilpns.size()
+                );
+
+
+                AsnPage asnPage =
+                        new AsnPage();
+
+
+                // =====================================================
+                // EXISTING METHOD WILL DO:
+                //
+                // Click ASN
+                // -> Related Links
+                // -> LPN Inventory
+                // -> Refresh
+                // -> Validate ILPN Location
+                // =====================================================
+
+                asnPage.verifyILPNLocation(
+                        asnId,
+                        ilpns
                 );
             }
+
+
+            // =========================================================
+            // FINAL REPORT
+            // =========================================================
+
+            report.addReportStepWithScreenshot(
+                    StepStatus.PASS,
+                    "Pallet Putaway and ILPN Verification completed "
+                            + "for Pallet: "
+                            + palletId
+                            + " | Location: "
+                            + location
+            );
+        }
 
 
 
@@ -3089,6 +3573,1832 @@
                                 + vendorName
                 );
             }
+            public void vendorSpecificReceiving(
+                    String asnInput,
+                    String itemInput,
+                    String unitsInput)
+                    throws InterruptedException {
+                if (asnInput == null || asnInput.isBlank()) {
+                    throw new IllegalArgumentException(
+                            "ASN cannot be empty"
+                    );
+                }
+
+                if (itemInput == null || itemInput.isBlank()) {
+                    throw new IllegalArgumentException(
+                            "Item cannot be empty for ASN: " + asnInput
+                    );
+                }
+
+                if (unitsInput == null || unitsInput.isBlank()) {
+                    throw new IllegalArgumentException(
+                            "Units cannot be empty for ASN: " + asnInput
+                    );
+                }
+
+                String asnId = asnInput.trim();
+
+
+                // =========================================================
+                // SPLIT ITEMS
+                // =========================================================
+
+                String[] itemArray =
+                        itemInput.split(",");
+                String[] quantityArray =
+                        unitsInput.split(",");
+
+
+                // =========================================================
+                // VALIDATE ITEM / QUANTITY COUNT
+                // =========================================================
+
+                if (itemArray.length != quantityArray.length) {
+
+                    throw new IllegalArgumentException(
+                            "Item and Units count must be the same for ASN: "
+                                    + asnId
+                                    + ". Items="
+                                    + itemArray.length
+                                    + ", Units="
+                                    + quantityArray.length
+                    );
+                }
+
+
+                // =========================================================
+                // CREATE / GET CREATED ASN DATA
+                //
+                // We need CreatedASNData because both:
+                //
+                //     putaway()
+                //
+                // and
+                //
+                //     palletPutaway()
+                //
+                // read ILPN information from it.
+                // =========================================================
+
+                @SuppressWarnings("unchecked")
+                List<ASNData> createdASNData =
+                        (List<ASNData>) ScenarioContext.get(
+                                "CreatedASNData"
+                        );
+
+
+                if (createdASNData == null) {
+
+                    createdASNData =
+                            new ArrayList<>();
+                }
+
+
+                // =========================================================
+                // FIND EXISTING ASN DATA
+                //
+                // This is important for Scenario 1.
+                //
+                // If ASN creation already stored the ASN in
+                // CreatedASNData, we reuse that ASNData object instead
+                // of creating a duplicate.
+                // =========================================================
+
+                ASNData currentAsnData = null;
+
+                for (ASNData existingAsnData : createdASNData) {
+
+                    if (existingAsnData == null) {
+                        continue;
+                    }
+
+                    String existingAsn =
+                            existingAsnData.getAsn();
+
+                    if (existingAsn != null
+                            && existingAsn.equalsIgnoreCase(asnId)) {
+
+                        currentAsnData =
+                                existingAsnData;
+
+                        break;
+                    }
+                }
+
+
+                // =========================================================
+                // CREATE ASN DATA IF NOT ALREADY PRESENT
+                // =========================================================
+
+                if (currentAsnData == null) {
+
+                    currentAsnData =
+                            new ASNData(asnId);
+
+                    createdASNData.add(
+                            currentAsnData
+                    );
+                }
+
+
+                // =========================================================
+                // STORE UPDATED ASN DATA
+                // =========================================================
+
+                ScenarioContext.set(
+                        "CreatedASNData",
+                        createdASNData
+                );
+
+
+                // =========================================================
+                // START
+                // =========================================================
+
+                System.out.println(
+                        "======================================"
+                );
+
+                System.out.println(
+                        "STARTING VENDOR SPECIFIC RECEIVING"
+                );
+
+                System.out.println(
+                        "ASN       : " + asnId
+                );
+
+                System.out.println(
+                        "Items     : " + itemInput
+                );
+
+                System.out.println(
+                        "Units     : " + unitsInput
+                );
+
+                System.out.println(
+                        "Total Items: " + itemArray.length
+                );
+
+                System.out.println(
+                        "======================================"
+                );
+
+
+                // =========================================================
+                // CLEAR STALE PALLET
+                //
+                // Prevent previous scenario / ASN pallet from being
+                // reused.
+                // =========================================================
+
+                ScenarioContext.set(
+                        "CreatedPalletId",
+                        ""
+                );
+
+
+                // =========================================================
+                // OPEN ASN UI
+                //
+                // Vendor is captured from ASN itself.
+                // =========================================================
+
+                click(
+                        menuToggleButton,
+                        "Menu Toggle"
+                );
+
+                Thread.sleep(4000);
+
+
+                type(
+                        searchBarInLandingPage,
+                        "ASNs",
+                        "ASN UI"
+                );
+
+                Thread.sleep(3000);
+
+
+                click(
+                        clickAsnSFromMenu,
+                        "Clicked ASNs"
+                );
+
+                Thread.sleep(3000);
+
+
+                // =========================================================
+                // FILTER ASN
+                // =========================================================
+
+                type(
+                        filterAsnById,
+                        asnId,
+                        "Filter ASN By ID"
+                );
+
+                Thread.sleep(2000);
+
+
+                pressEnter(
+                        filterAsnById,
+                        "Pressed Enter for ASN Filter"
+                );
+
+                Thread.sleep(2000);
+
+
+                click(
+                        refresh,
+                        "Clicked Refresh in ASN UI"
+                );
+
+                Thread.sleep(3000);
+
+
+                // =========================================================
+                // GET VENDOR FROM ASN
+                // =========================================================
+
+                String vendorName =
+                        vendorId.getText();
+
+
+                if (vendorName == null) {
+                    vendorName = "";
+                }
+
+
+                vendorName =
+                        vendorName.trim();
+
+
+                // =========================================================
+                // DETERMINE RECEIVING TYPE
+                //
+                // Vendor exists
+                //      -> Pallet Receiving
+                //
+                // Vendor empty
+                //      -> Normal Receiving
+                // =========================================================
+
+                boolean hasVendor =
+                        !vendorName.isBlank();
+
+
+                System.out.println(
+                        "ASN: "
+                                + asnId
+                                + " | Vendor: ["
+                                + vendorName
+                                + "]"
+                );
+
+
+                System.out.println(
+                        "Receiving Type: "
+                                + (
+                                hasVendor
+                                        ? "PALLET RECEIVING"
+                                        : "NORMAL RECEIVING"
+                        )
+                );
+
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        hasVendor
+                                ? "Vendor found for ASN "
+                                + asnId
+                                + ": "
+                                + vendorName
+                                + " | Pallet receiving will be performed"
+
+                                : "No vendor found for ASN "
+                                + asnId
+                                + " | Normal receiving will be performed"
+                );
+
+
+                // =========================================================
+                // PERFORM RECEIVING
+                //
+                // IMPORTANT:
+                //
+                // All items belonging to this ASN are passed together.
+                // =========================================================
+
+                receiveVendorPallet(
+                        asnId,
+                        itemArray,
+                        quantityArray,
+                        vendorName,
+                        hasVendor,
+                        currentAsnData
+                );
+
+
+                // =========================================================
+                // STORE FINAL ASN DATA
+                // =========================================================
+
+                ScenarioContext.set(
+                        "CreatedASNData",
+                        createdASNData
+                );
+
+
+                // =========================================================
+                // DEBUG ASN DATA
+                // =========================================================
+
+                System.out.println(
+                        "======================================"
+                );
+
+                System.out.println(
+                        "CREATED ASN DATA AFTER RECEIVING"
+                );
+
+                System.out.println(
+                        "======================================"
+                );
+
+
+                System.out.println(
+                        "ASN: "
+                                + currentAsnData.getAsn()
+                );
+
+
+                System.out.println(
+                        "Items:"
+                );
+
+
+                for (ItemData itemData :
+                        currentAsnData.getItems()) {
+
+                    System.out.println(
+                            "  Item: "
+                                    + itemData.getItem()
+                                    + " | Qty: "
+                                    + itemData.getShippedQty()
+                    );
+                }
+
+
+                System.out.println(
+                        "ILPNs:"
+                );
+
+
+                for (ILPNData ilpnData :
+                        currentAsnData.getIlpns()) {
+
+                    System.out.println(
+                            "  ILPN: "
+                                    + ilpnData.getIlpn()
+                    );
+
+                    for (ItemData itemData :
+                            ilpnData.getItems()) {
+
+                        System.out.println(
+                                "      Item: "
+                                        + itemData.getItem()
+                                        + " | Qty: "
+                                        + itemData.getShippedQty()
+                        );
+                    }
+                }
+
+
+                System.out.println(
+                        "======================================"
+                );
+
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "Vendor Specific Receiving Completed for ASN: "
+                                + asnId
+                                + " | Vendor: "
+                                + (
+                                vendorName.isBlank()
+                                        ? "NONE"
+                                        : vendorName
+                        )
+                );
+                verifyAsnAfterReceiving();
+            }
+
+
+            /**
+             * Performs 190 Receiving for one ASN.
+             *
+             * One ASN can contain multiple items.
+             *
+             * Example:
+             *
+             * ASN000000027883
+             *
+             *     19005 -> 5
+             *     19003 -> 5
+             *
+             * For each item:
+             *
+             *     Generate LPN
+             *     Store LPN in ASNData
+             *     Store ItemData in ILPNData
+             *     Enter Item
+             *     Enter Quantity
+             *     End LPN
+             *
+             * If vendor exists:
+             *
+             *     Generate pallet
+             *     Store CreatedPalletId
+             *     End pallet
+             *
+             * If vendor does not exist:
+             *
+             *     No pallet is generated
+             *     No pallet is stored
+             *     No End Pallet operation
+             */
+            private void receiveVendorPallet(
+                    String asnId,
+                    String[] items,
+                    String[] quantities,
+                    String vendorName,
+                    boolean hasVendor,
+                    ASNData asnData)
+                    throws InterruptedException {
+
+
+                // =========================================================
+                // VALIDATION
+                // =========================================================
+
+                if (items == null || quantities == null) {
+
+                    throw new IllegalArgumentException(
+                            "Items and quantities cannot be null for ASN: "
+                                    + asnId
+                    );
+                }
+
+
+                if (items.length != quantities.length) {
+
+                    throw new IllegalArgumentException(
+                            "Items and quantities count mismatch for ASN: "
+                                    + asnId
+                                    + " | Items="
+                                    + items.length
+                                    + " | Quantities="
+                                    + quantities.length
+                    );
+                }
+
+
+                if (items.length == 0) {
+
+                    throw new IllegalArgumentException(
+                            "No items provided for ASN: "
+                                    + asnId
+                    );
+                }
+
+
+                // =========================================================
+                // START
+                // =========================================================
+
+                System.out.println(
+                        "======================================"
+                );
+
+                System.out.println(
+                        "STARTING 190 RECEIVING"
+                );
+
+                System.out.println(
+                        "ASN       : " + asnId
+                );
+
+                System.out.println(
+                        "Vendor    : " + vendorName
+                );
+
+                System.out.println(
+                        "Item Count: " + items.length
+                );
+
+                System.out.println(
+                        "Pallet Flow: "
+                                + (
+                                hasVendor
+                                        ? "YES"
+                                        : "NO"
+                        )
+                );
+
+                System.out.println(
+                        "======================================"
+                );
+
+
+                // =========================================================
+                // OPEN WM MOBILE
+                // =========================================================
+
+                click(
+                        menuToggleButton,
+                        "Menu Toggle"
+                );
+
+                Thread.sleep(4000);
+
+
+                type(
+                        searchBarInLandingPage,
+                        "WM Mobile",
+                        "Search Bar in Landing Page"
+                );
+
+
+                // =========================================================
+                // STORE PARENT WINDOW
+                // =========================================================
+
+                String parentWindowId =
+                        driver.getWindowHandle();
+
+
+                ScenarioContext.set(
+                        "parentWindowId",
+                        parentWindowId
+                );
+
+
+                // =========================================================
+                // OPEN WM MOBILE
+                // =========================================================
+
+                click(
+                        clickWmMobileFromMenu,
+                        "Click WM Mobile from Menu"
+                );
+
+
+                waitForPageLoad();
+
+                Thread.sleep(5000);
+
+
+                // =========================================================
+                // SWITCH TO WM MOBILE
+                // =========================================================
+
+                for (String handle :
+                        driver.getWindowHandles()) {
+
+                    if (!handle.equals(parentWindowId)) {
+
+                        driver.switchTo()
+                                .window(handle);
+
+                        break;
+                    }
+                }
+
+
+                Thread.sleep(3000);
+
+
+                // =========================================================
+                // OPEN 190 RECEIVING
+                //
+                // BOTH FLOWS USE 190 RECEIVING
+                // =========================================================
+
+                type(
+                        searchBarInWmMobile,
+                        "190 Receiving",
+                        "Search Bar in WM Mobile"
+                );
+
+                Thread.sleep(3000);
+
+
+                click(
+                        click190Receiving,
+                        "Clicked 190 Receiving"
+                );
+
+                Thread.sleep(2000);
+
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "User Entered 190 Receiving Transaction"
+                );
+
+
+                // =========================================================
+                // ENTER ASN
+                // =========================================================
+
+                type(
+                        passAsnIdReceive,
+                        asnId,
+                        "ASN ID in 190 Receiving"
+                );
+
+
+                pressEnter(
+                        passAsnIdReceive,
+                        "Pressed Enter for ASN: " + asnId
+                );
+
+
+                Thread.sleep(3000);
+
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "User Entered ASN: " + asnId
+                );
+
+
+                // =========================================================
+                // PALLET FLOW
+                //
+                // ONLY WHEN VENDOR EXISTS
+                // =========================================================
+
+                String palletId = null;
+
+
+                if (hasVendor) {
+
+                    // =====================================================
+                    // GENERATE PALLET
+                    // =====================================================
+
+                    pressEnter(
+                            scanPallet,
+                            "Pallet ID Auto Generated"
+                    );
+
+
+                    Thread.sleep(3000);
+
+
+                    // =====================================================
+                    // GET PALLET ID
+                    // =====================================================
+
+                    palletId =
+                            getPallet.getText();
+
+
+                    if (palletId == null
+                            || palletId.isBlank()) {
+
+                        throw new IllegalStateException(
+                                "Pallet ID could not be generated for ASN: "
+                                        + asnId
+                        );
+                    }
+
+
+                    palletId =
+                            palletId.trim();
+
+
+                    // =====================================================
+                    // STORE PALLET ID
+                    // =====================================================
+
+                    ScenarioContext.set(
+                            "CreatedPalletId",
+                            palletId
+                    );
+
+
+                    System.out.println(
+                            "Generated Pallet ID: "
+                                    + palletId
+                    );
+
+
+                    System.out.println(
+                            "Stored CreatedPalletId: "
+                                    + ScenarioContext.get(
+                                    "CreatedPalletId"
+                            )
+                    );
+
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "Generated Pallet ID: "
+                                    + palletId
+                    );
+                }
+
+
+                // =========================================================
+                // PROCESS EVERY ITEM
+                //
+                // IMPORTANT:
+                //
+                // One item = one generated LPN
+                //
+                // Example:
+                //
+                // 19005 -> LPN001 -> Qty 5
+                // 19003 -> LPN002 -> Qty 5
+                // =========================================================
+
+                for (int i = 0;
+                     i < items.length;
+                     i++) {
+
+
+                    String item =
+                            items[i].trim();
+
+
+                    String quantity =
+                            quantities[i].trim();
+
+
+                    // =====================================================
+                    // VALIDATE ITEM
+                    // =====================================================
+
+                    if (item.isBlank()) {
+
+                        throw new IllegalArgumentException(
+                                "Item cannot be empty at index "
+                                        + i
+                                        + " for ASN: "
+                                        + asnId
+                        );
+                    }
+
+
+                    // =====================================================
+                    // VALIDATE QUANTITY
+                    // =====================================================
+
+                    if (quantity.isBlank()) {
+
+                        throw new IllegalArgumentException(
+                                "Quantity cannot be empty for Item: "
+                                        + item
+                                        + " | ASN: "
+                                        + asnId
+                        );
+                    }
+
+
+                    System.out.println(
+                            "--------------------------------------"
+                    );
+
+                    System.out.println(
+                            "Processing Item "
+                                    + (i + 1)
+                                    + " of "
+                                    + items.length
+                    );
+
+                    System.out.println(
+                            "Item     : " + item
+                    );
+
+                    System.out.println(
+                            "Quantity : " + quantity
+                    );
+
+                    System.out.println(
+                            "--------------------------------------"
+                    );
+
+
+                    // =====================================================
+                    // CREATE ITEM DATA
+                    //
+                    // This object is shared between:
+                    //
+                    // ASNData
+                    // ILPNData
+                    // =====================================================
+
+                    ItemData itemData =
+                            new ItemData(
+                                    item,
+                                    quantity
+                            );
+
+
+                    // =====================================================
+                    // ADD ITEM TO ASN
+                    // =====================================================
+
+                    asnData.addItem(
+                            itemData
+                    );
+
+
+                    // =====================================================
+                    // GENERATE LPN
+                    // =====================================================
+
+                    pressEnter(
+                            passLpnIdReceive,
+                            "LPN ID Auto Generated for Item: "
+                                    + item
+                    );
+
+
+                    Thread.sleep(2000);
+
+
+                    // =====================================================
+                    // GET GENERATED LPN
+                    // =====================================================
+
+                    String lpnId =
+                            storeLpnIdFromWm.getText();
+
+
+                    if (lpnId == null
+                            || lpnId.isBlank()) {
+
+                        throw new IllegalStateException(
+                                "LPN ID could not be generated for ASN: "
+                                        + asnId
+                                        + " | Item: "
+                                        + item
+                        );
+                    }
+
+
+                    lpnId =
+                            lpnId.trim();
+
+
+                    System.out.println(
+                            "Generated LPN: "
+                                    + lpnId
+                                    + " | Item: "
+                                    + item
+                    );
+
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "Generated LPN: "
+                                    + lpnId
+                                    + " for Item: "
+                                    + item
+                    );
+
+
+                    // =====================================================
+                    // CREATE ILPN DATA
+                    // =====================================================
+
+                    ILPNData ilpnData =
+                            new ILPNData(
+                                    lpnId
+                            );
+
+
+                    // =====================================================
+                    // ADD ITEM TO ILPN
+                    // =====================================================
+
+                    ilpnData.addItem(
+                            itemData
+                    );
+
+
+                    // =====================================================
+                    // ADD ILPN TO ASN
+                    // =====================================================
+
+                    asnData.addIlpn(
+                            ilpnData
+                    );
+
+
+                    // =====================================================
+                    // OPTIONAL INDIVIDUAL LPN CONTEXT
+                    // =====================================================
+
+                    ScenarioContext.set(
+                            "Created LPN "
+                                    + (i + 1),
+                            lpnId
+                    );
+
+
+                    // =====================================================
+                    // ENTER ITEM
+                    // =====================================================
+
+                    type(
+                            passItemReceive,
+                            item,
+                            "Item Barcode in 190 Receiving"
+                    );
+
+
+                    pressEnter(
+                            passItemReceive,
+                            "Pressed Enter for Item: "
+                                    + item
+                    );
+
+
+                    Thread.sleep(4000);
+
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "User Entered Item: "
+                                    + item
+                                    + " for LPN: "
+                                    + lpnId
+                    );
+
+
+                    // =====================================================
+                    // ENTER QUANTITY
+                    // =====================================================
+
+                    type(
+                            passQtyReceive,
+                            quantity,
+                            "Quantity in 190 Receiving"
+                    );
+
+
+                    Thread.sleep(2000);
+
+
+                    pressEnter(
+                            passQtyReceive,
+                            "Pressed Enter for Quantity: "
+                                    + quantity
+                    );
+
+
+                    Thread.sleep(3000);
+
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "User Entered Quantity: "
+                                    + quantity
+                                    + " for Item: "
+                                    + item
+                    );
+
+
+                    // =====================================================
+                    // END LPN
+                    // =====================================================
+
+                    click(
+                            endLPNReceive,
+                            "Clicked End LPN"
+                    );
+
+
+                    Thread.sleep(3000);
+
+
+                    System.out.println(
+                            "Completed LPN: "
+                                    + lpnId
+                                    + " | Item: "
+                                    + item
+                                    + " | Quantity: "
+                                    + quantity
+                    );
+
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "Completed LPN: "
+                                    + lpnId
+                                    + " | Item: "
+                                    + item
+                                    + " | Quantity: "
+                                    + quantity
+                    );
+                }
+
+
+                // =========================================================
+                // END PALLET
+                //
+                // ONLY WHEN VENDOR EXISTS
+                // =========================================================
+
+                if (hasVendor) {
+
+                    Thread.sleep(2000);
+
+
+                    click(
+                            endPallet,
+                            "Ended Pallet"
+                    );
+
+
+                    Thread.sleep(3000);
+
+
+                    System.out.println(
+                            "Completed Pallet: "
+                                    + palletId
+                                    + " for ASN: "
+                                    + asnId
+                    );
+
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "Completed Pallet: "
+                                    + palletId
+                                    + " for ASN: "
+                                    + asnId
+                    );
+
+                } else {
+
+                    System.out.println(
+                            "No vendor found for ASN: "
+                                    + asnId
+                                    + " | Pallet flow skipped"
+                    );
+                }
+
+
+                // =========================================================
+                // STORE ASN DATA AGAIN
+                //
+                // This guarantees the latest ILPN information is
+                // available to Putaway.
+                // =========================================================
+
+                @SuppressWarnings("unchecked")
+                List<ASNData> finalASNData =
+                        (List<ASNData>) ScenarioContext.get(
+                                "CreatedASNData"
+                        );
+
+
+                if (finalASNData == null) {
+
+                    finalASNData =
+                            new ArrayList<>();
+
+                    finalASNData.add(
+                            asnData
+                    );
+                }
+
+
+                ScenarioContext.set(
+                        "CreatedASNData",
+                        finalASNData
+                );
+
+
+                // =========================================================
+                // CLOSE WM MOBILE
+                // =========================================================
+
+                driver.close();
+
+
+                // =========================================================
+                // RETURN TO PARENT WINDOW
+                // =========================================================
+
+                driver.switchTo()
+                        .window(parentWindowId);
+
+
+                // =========================================================
+                // FINAL LOG
+                // =========================================================
+
+                System.out.println(
+                        "======================================"
+                );
+
+                System.out.println(
+                        "RECEIVING COMPLETED"
+                );
+
+                System.out.println(
+                        "ASN    : " + asnId
+                );
+
+                System.out.println(
+                        "Vendor : "
+                                + (
+                                vendorName.isBlank()
+                                        ? "NONE"
+                                        : vendorName
+                        )
+                );
+
+                System.out.println(
+                        "Items  : " + items.length
+                );
+
+                System.out.println(
+                        "Pallet : "
+                                + (
+                                hasVendor
+                                        ? palletId
+                                        : "NOT CREATED"
+                        )
+                );
+
+                System.out.println(
+                        "ILPNs  : "
+                                + asnData.getIlpns().size()
+                );
+
+                System.out.println(
+                        "======================================"
+                );
+            }
+
+
+
+            private void receiveVendorPallet(
+                    String asnId,
+                    String item,
+                    String quantity,
+                    String vendorName,
+                    boolean hasVendor)
+                    throws InterruptedException {
+
+                // =========================================================
+                // START
+                // =========================================================
+
+                System.out.println("======================================");
+                System.out.println("STARTING RECEIVING");
+                System.out.println("ASN       : " + asnId);
+                System.out.println("Vendor    : " + vendorName);
+                System.out.println("Item      : " + item);
+                System.out.println("Units     : " + quantity);
+                System.out.println(
+                        "Pallet Flow: "
+                                + (hasVendor ? "YES" : "NO")
+                );
+                System.out.println("======================================");
+
+                // =========================================================
+                // OPEN WM MOBILE
+                // =========================================================
+
+                click(
+                        menuToggleButton,
+                        "Menu Toggle"
+                );
+
+                Thread.sleep(4000);
+
+                type(
+                        searchBarInLandingPage,
+                        "WM Mobile",
+                        "Search Bar in Landing Page"
+                );
+
+                // =========================================================
+                // STORE PARENT WINDOW
+                // =========================================================
+
+                String parentWindowId =
+                        driver.getWindowHandle();
+
+                ScenarioContext.set(
+                        "parentWindowId",
+                        parentWindowId
+                );
+
+                // =========================================================
+                // OPEN WM MOBILE
+                // =========================================================
+
+                click(
+                        clickWmMobileFromMenu,
+                        "Click WM Mobile from Menu"
+                );
+
+                waitForPageLoad();
+
+                Thread.sleep(5000);
+
+                // =========================================================
+                // SWITCH TO WM MOBILE WINDOW
+                // =========================================================
+
+                for (String handle :
+                        driver.getWindowHandles()) {
+
+                    if (!handle.equals(parentWindowId)) {
+
+                        driver.switchTo()
+                                .window(handle);
+
+                        break;
+                    }
+                }
+
+                Thread.sleep(3000);
+
+                // =========================================================
+                // OPEN 190 RECEIVING
+                //
+                // BOTH FLOWS USE 190 RECEIVING
+                // =========================================================
+
+                type(
+                        searchBarInWmMobile,
+                        "190 Receiving",
+                        "Search Bar in WM Mobile"
+                );
+
+                Thread.sleep(3000);
+
+                click(
+                        click190Receiving,
+                        "Clicked 190 Receiving"
+                );
+
+                Thread.sleep(2000);
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "User Entered 190 Receiving Transaction"
+                );
+
+                // =========================================================
+                // ENTER ASN
+                // =========================================================
+
+                type(
+                        passAsnIdReceive,
+                        asnId,
+                        "ASN ID in 190 Receiving"
+                );
+
+                pressEnter(
+                        passAsnIdReceive,
+                        "Pressed Enter for ASN: " + asnId
+                );
+
+                Thread.sleep(3000);
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "User Entered ASN: " + asnId
+                );
+
+                // =========================================================
+                // PALLET FLOW
+                //
+                // ONLY WHEN VENDOR EXISTS
+                // =========================================================
+
+                String palletId = null;
+
+                if (hasVendor) {
+
+                    // =====================================================
+                    // GENERATE PALLET
+                    // =====================================================
+
+                    pressEnter(
+                            scanPallet,
+                            "Pallet ID Auto Generated"
+                    );
+
+                    Thread.sleep(3000);
+
+                    // =====================================================
+                    // GET PALLET ID
+                    // =====================================================
+
+                    palletId =
+                            getPallet.getText();
+
+                    if (palletId == null ||
+                            palletId.isBlank()) {
+
+                        throw new IllegalStateException(
+                                "Pallet ID could not be generated for ASN: "
+                                        + asnId
+                        );
+                    }
+
+                    palletId =
+                            palletId.trim();
+
+                    // =====================================================
+                    // STORE PALLET ID
+                    // =====================================================
+
+                    ScenarioContext.set(
+                            "CreatedPalletId",
+                            palletId
+                    );
+
+                    System.out.println(
+                            "Generated Pallet ID: "
+                                    + palletId
+                    );
+
+                    System.out.println(
+                            "Stored CreatedPalletId: "
+                                    + ScenarioContext.get(
+                                    "CreatedPalletId"
+                            )
+                    );
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "Generated Pallet ID: "
+                                    + palletId
+                    );
+                }
+
+                // =========================================================
+                // GENERATE LPN
+                // =========================================================
+
+                pressEnter(
+                        passLpnIdReceive,
+                        "LPN ID Auto Generated"
+                );
+
+                Thread.sleep(2000);
+
+                // =========================================================
+                // GET LPN ID
+                // =========================================================
+
+                String lpnId =
+                        storeLpnIdFromWm.getText();
+
+                if (lpnId == null ||
+                        lpnId.isBlank()) {
+
+                    throw new IllegalStateException(
+                            "LPN ID could not be generated for ASN: "
+                                    + asnId
+                    );
+                }
+
+                lpnId =
+                        lpnId.trim();
+
+                System.out.println(
+                        "Generated LPN: " + lpnId
+                );
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "Generated LPN: " + lpnId
+                );
+
+                // =========================================================
+                // ENTER ITEM
+                // =========================================================
+
+                type(
+                        passItemReceive,
+                        item,
+                        "Item Barcode in 190 Receiving"
+                );
+
+                pressEnter(
+                        passItemReceive,
+                        "Pressed Enter for Item: " + item
+                );
+
+                Thread.sleep(4000);
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "User Entered Item: " + item
+                );
+
+                // =========================================================
+                // ENTER QUANTITY
+                // =========================================================
+
+                type(
+                        passQtyReceive,
+                        quantity,
+                        "Quantity in 190 Receiving"
+                );
+
+                Thread.sleep(2000);
+
+                pressEnter(
+                        passQtyReceive,
+                        "Pressed Enter for Quantity: "
+                                + quantity
+                );
+
+                Thread.sleep(3000);
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "User Entered Quantity: "
+                                + quantity
+                );
+
+                // =========================================================
+                // END LPN
+                // =========================================================
+
+                click(
+                        endLPNReceive,
+                        "Clicked End LPN"
+                );
+
+                Thread.sleep(3000);
+
+                System.out.println(
+                        "Completed LPN: " + lpnId
+                );
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "Completed LPN: "
+                                + lpnId
+                                + " | Item: "
+                                + item
+                                + " | Quantity: "
+                                + quantity
+                );
+
+                // =========================================================
+                // END PALLET
+                //
+                // ONLY WHEN VENDOR EXISTS
+                // =========================================================
+
+                if (hasVendor) {
+
+                    Thread.sleep(2000);
+
+                    click(
+                            endPallet,
+                            "Ended Pallet"
+                    );
+
+                    Thread.sleep(3000);
+
+                    System.out.println(
+                            "Completed Pallet: "
+                                    + palletId
+                                    + " for ASN: "
+                                    + asnId
+                    );
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "Completed Pallet: "
+                                    + palletId
+                                    + " for ASN: "
+                                    + asnId
+                    );
+                } else {
+
+                    System.out.println(
+                            "No vendor found for ASN: "
+                                    + asnId
+                                    + " | Pallet flow skipped"
+                    );
+                }
+
+                // =========================================================
+                // CLOSE WM MOBILE
+                // =========================================================
+
+                driver.close();
+
+                // =========================================================
+                // RETURN TO PARENT WINDOW
+                // =========================================================
+
+                driver.switchTo()
+                        .window(parentWindowId);
+
+                System.out.println("======================================");
+                System.out.println(
+                        "RECEIVING COMPLETED"
+                );
+                System.out.println("ASN    : " + asnId);
+                System.out.println("Vendor : " + vendorName);
+                System.out.println("LPN    : " + lpnId);
+                System.out.println(
+                        "Pallet : "
+                                + (hasVendor
+                                ? palletId
+                                : "NOT CREATED")
+                );
+                System.out.println("======================================");
+            }
+            public void performPutaway()
+                    throws InterruptedException {
+
+                // =========================================================
+                // GET PALLET ID
+                // =========================================================
+
+                Object palletObject =
+                        ScenarioContext.get("CreatedPalletId");
+
+                String palletId =
+                        palletObject == null
+                                ? ""
+                                : palletObject.toString().trim();
+
+                // =========================================================
+                // PALLET AVAILABLE
+                // =========================================================
+
+                if (!palletId.isBlank()) {
+
+                    System.out.println(
+                            "======================================"
+                    );
+
+                    System.out.println(
+                            "PALLET FOUND"
+                    );
+
+                    System.out.println(
+                            "Pallet ID: " + palletId
+                    );
+
+                    System.out.println(
+                            "Performing Pallet Putaway"
+                    );
+
+                    System.out.println(
+                            "======================================"
+                    );
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "Pallet available: "
+                                    + palletId
+                                    + " | Performing Pallet Putaway"
+                    );
+
+                    palletPutaway();
+
+                }
+
+                // =========================================================
+                // NO PALLET
+                // =========================================================
+
+                else {
+
+                    System.out.println(
+                            "======================================"
+                    );
+
+                    System.out.println(
+                            "NO PALLET FOUND"
+                    );
+
+                    System.out.println(
+                            "Performing normal User Directed Putaway"
+                    );
+
+                    System.out.println(
+                            "======================================"
+                    );
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "No pallet available | Performing normal UD-Putaway"
+                    );
+
+                    putaway();
+                }
+            }
+
+            public void verifyAsnAfterReceiving()
+                    throws InterruptedException {
+
+                @SuppressWarnings("unchecked")
+                List<ASNData> createdASNData =
+                        (List<ASNData>)
+                                ScenarioContext.get("CreatedASNData");
+
+                if (createdASNData == null
+                        || createdASNData.isEmpty()) {
+
+                    throw new IllegalStateException(
+                            "No Created ASN data found in ScenarioContext"
+                    );
+                }
+
+                AsnPage asnPage = new AsnPage();
+
+                for (ASNData asnData : createdASNData) {
+
+                    String asnId =
+                            asnData.getAsn();
+
+                    if (asnId == null || asnId.isBlank()) {
+                        throw new IllegalStateException(
+                                "ASN ID is empty in CreatedASNData"
+                        );
+                    }
+
+                    List<String> ilpns =
+                            new ArrayList<>();
+
+                    for (ILPNData ilpnData :
+                            asnData.getIlpns()) {
+
+                        String ilpn =
+                                ilpnData.getIlpn();
+
+                        if (ilpn == null || ilpn.isBlank()) {
+                            throw new IllegalStateException(
+                                    "ILPN is empty for ASN: "
+                                            + asnId
+                            );
+                        }
+
+                        ilpns.add(ilpn.trim());
+                    }
+
+                    if (ilpns.isEmpty()) {
+                        throw new IllegalStateException(
+                                "No ILPNs found for ASN: "
+                                        + asnId
+                        );
+                    }
+
+                    // =====================================================
+                    // OPEN ASN UI
+                    // =====================================================
+
+                    click(
+                            menuToggleButton,
+                            "Menu Toggle"
+                    );
+
+                    Thread.sleep(3000);
+
+                    type(
+                            searchBarInLandingPage,
+                            "ASNs",
+                            "ASN UI"
+                    );
+
+                    Thread.sleep(3000);
+
+                    click(
+                            clickAsnSFromMenu,
+                            "Clicked ASNs"
+                    );
+
+                    Thread.sleep(4000);
+
+                    // =====================================================
+                    // FILTER ASN
+                    // =====================================================
+
+                    type(
+                            filterAsnById,
+                            asnId,
+                            "Filter ASN By ID"
+                    );
+
+                    pressEnter(
+                            filterAsnById,
+                            "Pressed Enter for ASN: " + asnId
+                    );
+
+                    click(
+                            refresh,
+                            "Refreshed ASN UI"
+                    );
+
+                    // =====================================================
+                    // STATUS = IN RECEIVING
+                    // =====================================================
+
+                    waitForStatus(
+                            asnStatusValidation,
+                            () -> click(
+                                    refresh,
+                                    "Refreshing ASN Status"
+                            ),
+                            "In Receiving"
+                    );
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "ASN Status validated as In Receiving"
+                                    + " | ASN: " + asnId
+                    );
+
+                    // =====================================================
+                    // VERIFY ASN
+                    // =====================================================
+
+                    asnPage.verifyASN(asnId);
+
+                    // verifyASN() already waits for Verified.
+                    // =====================================================
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "ASN Status validated as Verified"
+                                    + " | ASN: " + asnId
+                    );
+
+                    // =====================================================
+                    // PARENT LPN VALIDATION
+                    // =====================================================
+
+                    Object palletObject =
+                            ScenarioContext.get("CreatedPalletId");
+
+                    String palletId =
+                            palletObject == null
+                                    ? ""
+                                    : palletObject.toString().trim();
+
+                    if (!palletId.isBlank()) {
+
+                        System.out.println(
+                                "Pallet found: "
+                                        + palletId
+                                        + " | Starting Parent LPN validation"
+                        );
+
+                        asnPage.verifyILPNParentLpn(
+                                asnId,
+                                ilpns,
+                                palletId
+                        );
+
+                    } else {
+
+                        System.out.println(
+                                "No pallet found for ASN: "
+                                        + asnId
+                                        + " | Skipping Parent LPN validation"
+                        );
+                    }
+                }
+
+                System.out.println(
+                        "======================================"
+                );
+
+                System.out.println(
+                        "ASN / LPN POST-RECEIVING VALIDATION COMPLETED"
+                );
+
+                System.out.println(
+                        "======================================"
+                );
+            }
+
         }
 
 

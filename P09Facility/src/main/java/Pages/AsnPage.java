@@ -1089,25 +1089,14 @@ public class AsnPage extends BasePage {
         );
 
         Thread.sleep(2000);
-
-        // =========================================================
-        // STORE VENDOR
-        // =========================================================
-
         ScenarioContext.set(
                 "VendorName",
                 vendorName
         );
-
         System.out.println(
                 "Vendor stored in ScenarioContext: "
                         + ScenarioContext.get("VendorName")
         );
-
-        // =========================================================
-        // FINAL ASN STATUS CHECK
-        // =========================================================
-
         waitForStatus(
                 asnStatusValidation,
                 () -> click(
@@ -3465,6 +3454,396 @@ public class AsnPage extends BasePage {
         );
 
         return startingPosition;
+    }
+
+    public void verifyILPNParentLpn(
+            String asn,
+            List<String> ilpns,
+            String palletId)
+            throws InterruptedException {
+
+        // =========================================================
+        // 1. VALIDATE INPUT
+        // =========================================================
+
+        if (asn == null || asn.isBlank()) {
+            throw new IllegalArgumentException(
+                    "ASN cannot be null or empty"
+            );
+        }
+
+        if (ilpns == null || ilpns.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "ILPN list cannot be null or empty for ASN: " + asn
+            );
+        }
+
+        if (palletId == null || palletId.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Pallet ID cannot be null or empty"
+            );
+        }
+
+        palletId = palletId.trim();
+
+        // =========================================================
+        // 2. OPEN ASN
+        // =========================================================
+
+        try {
+
+            WebElement asnGet =
+                    wait.until(
+                            ExpectedConditions.elementToBeClickable(
+                                    By.xpath(
+                                            "//span[@data-component-id='AsnId' and normalize-space()='"
+                                                    + asn
+                                                    + "']"
+                                    )
+                            )
+                    );
+
+            click(
+                    asnGet,
+                    "Clicked ASN ID for Parent LPN Validation"
+            );
+
+        } catch (StaleElementReferenceException e) {
+
+            WebElement asnGet =
+                    wait.until(
+                            ExpectedConditions.elementToBeClickable(
+                                    By.xpath(
+                                            "//span[@data-component-id='AsnId' and normalize-space()='"
+                                                    + asn
+                                                    + "']"
+                                    )
+                            )
+                    );
+
+            click(
+                    asnGet,
+                    "Clicked ASN ID for Parent LPN Validation"
+            );
+        }
+
+        Thread.sleep(3000);
+
+        // =========================================================
+        // 3. OPEN LPN INVENTORY
+        // =========================================================
+
+        click(
+                clickRelatedLinks,
+                "Clicked Related Links"
+        );
+
+        Thread.sleep(2000);
+
+        click(
+                lpnInventoryAsn,
+                "Opened LPN Inventory"
+        );
+
+        Thread.sleep(4000);
+
+        click(
+                refresh,
+                "Refreshed LPN Inventory"
+        );
+
+        Thread.sleep(3000);
+
+        // =========================================================
+        // 4. GET ALL ILPN IDs
+        // =========================================================
+
+        List<WebElement> ilpnElements =
+                driver.findElements(
+                        By.xpath(
+                                "//span[@data-component-id='IlpnId']"
+                        )
+                );
+
+        // =========================================================
+        // 5. GET ALL ILPN TYPES
+        // =========================================================
+
+        List<WebElement> lpnTypeElements =
+                driver.findElements(
+                        By.xpath(
+                                "//span[@data-component-id='IlpnTypeDescription']"
+                        )
+                );
+
+        // =========================================================
+        // 6. GET ONLY NON-EMPTY PARENT LPN VALUES
+        // =========================================================
+
+        List<WebElement> parentLpnElements =
+                driver.findElements(
+                        By.xpath(
+                                "//span[@data-component-id='ParentLpnId'][normalize-space()]"
+                        )
+                );
+
+        System.out.println(
+                "======================================"
+        );
+
+        System.out.println(
+                "LPN INVENTORY DATA"
+        );
+
+        System.out.println(
+                "Total ILPN IDs       : "
+                        + ilpnElements.size()
+        );
+
+        System.out.println(
+                "Total LPN Types      : "
+                        + lpnTypeElements.size()
+        );
+
+        System.out.println(
+                "Non-empty Parent LPN : "
+                        + parentLpnElements.size()
+        );
+
+        System.out.println(
+                "======================================"
+        );
+
+        // =========================================================
+        // 7. BUILD ILPN-ONLY LIST
+        // =========================================================
+
+        List<String> receivedIlpns =
+                new ArrayList<>();
+
+        for (int i = 0;
+             i < ilpnElements.size()
+                     && i < lpnTypeElements.size();
+             i++) {
+
+            String actualIlpn =
+                    ilpnElements.get(i)
+                            .getText()
+                            .trim();
+
+            String lpnType =
+                    lpnTypeElements.get(i)
+                            .getText()
+                            .trim();
+
+            System.out.println(
+                    "Position " + (i + 1)
+                            + " | ILPN: " + actualIlpn
+                            + " | Type: " + lpnType
+            );
+
+            // -----------------------------------------------------
+            // ONLY TAKE ILPN
+            // -----------------------------------------------------
+
+            if ("ILPN".equalsIgnoreCase(lpnType)) {
+
+                receivedIlpns.add(actualIlpn);
+            }
+        }
+
+        System.out.println(
+                "Actual ILPN records: "
+                        + receivedIlpns
+        );
+
+        // =========================================================
+        // 8. VALIDATE EACH EXPECTED ILPN
+        // =========================================================
+
+        for (String expectedIlpn : ilpns) {
+
+            String expectedIlpnValue =
+                    expectedIlpn.trim();
+
+            System.out.println(
+                    "======================================"
+            );
+
+            System.out.println(
+                    "Parent LPN Validation"
+            );
+
+            System.out.println(
+                    "ASN            : " + asn
+            );
+
+            System.out.println(
+                    "Expected ILPN  : "
+                            + expectedIlpnValue
+            );
+
+            System.out.println(
+                    "Expected Pallet: "
+                            + palletId
+            );
+
+            // =====================================================
+            // FIND ILPN POSITION AMONG ILPN RECORDS
+            // =====================================================
+
+            int ilpnIndex =
+                    -1;
+
+            for (int i = 0;
+                 i < receivedIlpns.size();
+                 i++) {
+
+                if (receivedIlpns.get(i)
+                        .equalsIgnoreCase(
+                                expectedIlpnValue)) {
+
+                    ilpnIndex = i;
+                    break;
+                }
+            }
+
+            // =====================================================
+            // ILPN NOT FOUND
+            // =====================================================
+
+            if (ilpnIndex == -1) {
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.FAIL,
+                        "ILPN not found in LPN Inventory"
+                                + " | ASN: " + asn
+                                + " | Expected ILPN: "
+                                + expectedIlpnValue
+                );
+
+                throw new IllegalStateException(
+                        "ILPN not found in LPN Inventory"
+                                + " | ASN: " + asn
+                                + " | ILPN: "
+                                + expectedIlpnValue
+                );
+            }
+
+            // =====================================================
+            // VALIDATE PARENT LPN EXISTS
+            // =====================================================
+
+            if (ilpnIndex >= parentLpnElements.size()) {
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.FAIL,
+                        "Parent LPN not found for ILPN"
+                                + " | ASN: " + asn
+                                + " | ILPN: "
+                                + expectedIlpnValue
+                );
+
+                throw new IllegalStateException(
+                        "Parent LPN not found for ILPN"
+                                + " | ILPN: "
+                                + expectedIlpnValue
+                );
+            }
+
+            // =====================================================
+            // GET PARENT LPN
+            // =====================================================
+
+            String actualParentLpn =
+                    parentLpnElements
+                            .get(ilpnIndex)
+                            .getText()
+                            .trim();
+
+            System.out.println(
+                    "--------------------------------------"
+            );
+
+            System.out.println(
+                    "ILPN Index      : "
+                            + ilpnIndex
+            );
+
+            System.out.println(
+                    "Actual ILPN     : "
+                            + expectedIlpnValue
+            );
+
+            System.out.println(
+                    "Actual Parent   : "
+                            + actualParentLpn
+            );
+
+            System.out.println(
+                    "Expected Parent : "
+                            + palletId
+            );
+
+            // =====================================================
+            // VALIDATE
+            // =====================================================
+
+            if (!actualParentLpn.equalsIgnoreCase(
+                    palletId)) {
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.FAIL,
+                        "Parent LPN Validation Failed"
+                                + " | ASN: " + asn
+                                + " | ILPN: "
+                                + expectedIlpnValue
+                                + " | Expected Parent LPN: "
+                                + palletId
+                                + " | Actual Parent LPN: "
+                                + actualParentLpn
+                );
+
+                throw new IllegalStateException(
+                        "Parent LPN validation failed"
+                                + " | ILPN: "
+                                + expectedIlpnValue
+                                + " | Expected: "
+                                + palletId
+                                + " | Actual: "
+                                + actualParentLpn
+                );
+            }
+
+            // =====================================================
+            // PASS
+            // =====================================================
+
+            report.addReportStepWithScreenshot(
+                    StepStatus.PASS,
+                    "Parent LPN Validation Passed"
+                            + " | ASN: " + asn
+                            + " | ILPN: "
+                            + expectedIlpnValue
+                            + " | Parent LPN: "
+                            + actualParentLpn
+            );
+
+            System.out.println(
+                    "Parent LPN validation PASSED"
+            );
+        }
+
+        // =========================================================
+        // FINAL RESULT
+        // =========================================================
+
+        report.addReportStepWithoutScreenshot(
+                StepStatus.PASS,
+                "Parent LPN validation completed"
+                        + " | ASN: " + asn
+                        + " | Pallet: " + palletId
+        );
     }
 
 
