@@ -21,7 +21,7 @@ public final class DriverFactory {
 
             case "chrome":
 
-                WebDriverManager.chromedriver().setup();
+//                WebDriverManager.chromedriver().setup();
 
                 ChromeOptions chromeOptions = new ChromeOptions();
 

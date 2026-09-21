@@ -1,6 +1,7 @@
 package com.p09.framework.reporting;
 
 import com.aventstack.extentreports.MediaEntityBuilder;
+import com.p09.framework.config.ConfigManager;
 import com.p09.framework.utilities.ScreenshotUtil;
 
 public final class ReportManager {
@@ -39,34 +40,66 @@ public final class ReportManager {
 
     }
 
-    public void fail(String message) {
+//    public void fail(String message) {
+//
+//        try {
+//
+//            String screenshotPath =
+//                    ScreenshotUtil.capture(
+//                            message.replaceAll(
+//                                    "[^a-zA-Z0-9_-]",
+//                                    "_"));
+//
+//            ReportEngine.getCurrentStep()
+//                    .fail(
+//                            message,
+//                            MediaEntityBuilder
+//                                    .createScreenCaptureFromPath(
+//                                            screenshotPath)
+//                                    .build());
+//
+//            ReportEngine.markFailureReported();
+//
+//        } catch (Exception e) {
+//
+//            log(StepStatus.FAIL, message);
+//
+//        }
+//        throw new RuntimeException(message);
+//
+//    }
+public void fail(String message) {
 
-        try {
+    try {
 
-            String screenshotPath =
-                    ScreenshotUtil.capture(
-                            message.replaceAll(
-                                    "[^a-zA-Z0-9_-]",
-                                    "_"));
+        String screenshotPath =
+                ScreenshotUtil.capture(
+                        message.replaceAll("[^a-zA-Z0-9_-]", "_"));
 
-            ReportEngine.getCurrentStep()
-                    .fail(
-                            message,
-                            MediaEntityBuilder
-                                    .createScreenCaptureFromPath(
-                                            screenshotPath)
-                                    .build());
+        ReportEngine.getCurrentStep()
+                .fail(
+                        message,
+                        MediaEntityBuilder
+                                .createScreenCaptureFromPath(screenshotPath)
+                                .build()
+                );
 
-            ReportEngine.markFailureReported();
+        ReportEngine.markFailureReported();
+        ReportEngine.markScenarioFailure();
+//        ReportEngine.markStepFailed();
 
-        } catch (Exception e) {
+    } catch (Exception e) {
 
-            log(StepStatus.FAIL, message);
+        log(StepStatus.FAIL, message);
 
-        }
-        throw new RuntimeException(message);
-
+        ReportEngine.markScenarioFailure();
+//        ReportEngine.markStepFailed();
     }
+
+    if (!ConfigManager.getBoolean("continue.on.failure")) {
+        throw new RuntimeException(message);
+    }
+}
     public void failWithScreenshot(
             String message,
             String screenshotPath) {

@@ -107,6 +107,7 @@ public class AsnPage extends BasePage {
     public WebElement closeCreatedAsnDetail;
 
 
+
     // =========================================================
     // WM MOBILE LOCATORS
     // =========================================================
@@ -167,6 +168,7 @@ public class AsnPage extends BasePage {
 
     @FindBy(xpath = "//button[@data-component-id='Close-Icon']")
     public WebElement closeAsnEdit;
+    private String uiName;
 
 
     // =========================================================
@@ -1120,6 +1122,7 @@ public class AsnPage extends BasePage {
     public void navigateToAnyUi(
             String uiName)
             throws InterruptedException {
+        this.uiName = uiName;
 
         click(
                 menuToggleButton,

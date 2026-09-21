@@ -743,10 +743,5 @@ public abstract class BasePage {
                         + elementName
                         + ". Reason: "
                         + errorMessage);
-
-        throw new RuntimeException(
-                "Operation failed on "
-                        + elementName,
-                exception);
     }
 }

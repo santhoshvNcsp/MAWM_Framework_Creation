@@ -41,15 +41,11 @@ public class Hooks {
     public void afterScenario(Scenario scenario) {
 
         if (scenario.isFailed()) {
-
             ReportEngine.getTest()
                     .fail("Scenario Name : " + scenario.getName());
-
         } else {
-
             ReportEngine.getTest()
                     .pass("Scenario Name : " + scenario.getName());
-
         }
 
         DriverManager.quitDriver();

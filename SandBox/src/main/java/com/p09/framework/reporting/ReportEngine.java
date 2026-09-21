@@ -16,6 +16,21 @@ public final class ReportEngine {
     private static final ThreadLocal<ExtentTest> currentStep =
             new ThreadLocal<>();
 
+    private static final ThreadLocal<Boolean> scenarioFailed =
+            ThreadLocal.withInitial(() -> false);
+
+    public static void markScenarioFailure() {
+        scenarioFailed.set(true);
+    }
+
+    public static boolean isScenarioFailed() {
+        return scenarioFailed.get();
+    }
+
+    public static void clearScenarioFailure() {
+        scenarioFailed.set(false);
+    }
+
     // Stores the generated report path
     private static String reportPath;
 
@@ -106,13 +121,10 @@ public final class ReportEngine {
     }
 
     public static void unload() {
-
         failureReported.remove();
-
+        scenarioFailed.remove();
         currentStep.remove();
-
         extentTest.remove();
-
     }
 
     public static String getReportPath() {

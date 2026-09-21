@@ -1,5 +1,6 @@
 package com.p09.framework.reporting;
 
+import com.aventstack.extentreports.MediaEntityBuilder;
 import com.p09.framework.utilities.ScreenshotUtil;
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.event.EventPublisher;
@@ -51,58 +52,114 @@ public class CucumberReportListener
 
     }
 
-    private void handleStepFinished(
-            TestStepFinished event) {
+    private void handleStepFinished(TestStepFinished event) {
 
-        if (!(event.getTestStep()
-                instanceof PickleStepTestStep)) {
-
+        if (!(event.getTestStep() instanceof PickleStepTestStep)) {
             return;
         }
 
-        if (event.getResult()
-                .getStatus()
-                .isOk()) {
+        io.cucumber.plugin.event.Status status =
+                event.getResult().getStatus();
 
-            return;
-        }
+        System.out.println(
+                "STEP STATUS: "
+                        + status
+        );
 
-        /*
-         * If report.fail() already captured
-         * the screenshot, don't capture another one.
-         */
-        if (ReportEngine.isFailureReported()) {
+        switch (status) {
 
-            ReportEngine.clearFailureReported();
+            case PASSED -> {
+                // Step executed successfully.
+                // No need to explicitly log PASS because the Extent node
+                // will remain successful.
+            }
 
-            return;
+//            case FAILED -> {
+//
+//                if (ReportEngine.isFailureReported()) {
+//                    ReportEngine.clearFailureReported();
+//                    return;
+//                }
+//
+//                try {
+//
+//                    String screenshotPath =
+//                            ScreenshotUtil.capture("Failed_Step");
+//
+//                    ReportEngine.getCurrentStep().fail(
+//                            "Step Failed",
+//                            com.aventstack.extentreports.MediaEntityBuilder
+//                                    .createScreenCaptureFromPath(screenshotPath)
+//                                    .build()
+//                    );
+//
+//                } catch (Exception e) {
+//
+//                    ReportEngine.getCurrentStep()
+//                            .fail(
+//                                    "Step Failed - Screenshot unavailable: "
+//                                            + e.getMessage()
+//                            );
+//                }
+//            }
+            case FAILED -> {
 
-        }
+                ReportEngine.markScenarioFailure();
 
-        try {
+                if (ReportEngine.isFailureReported()) {
+                    ReportEngine.clearFailureReported();
+                    return;
+                }
 
-            String screenshotPath =
-                    ScreenshotUtil.capture(
-                            "Failed_Step");
+                try {
 
-            ReportEngine.getCurrentStep()
-                    .fail(
+                    String screenshotPath =
+                            ScreenshotUtil.capture("Failed_Step");
+
+                    ReportEngine.getCurrentStep().fail(
                             "Step Failed",
-                            com.aventstack.extentreports
-                                    .MediaEntityBuilder
-                                    .createScreenCaptureFromPath(
-                                            screenshotPath)
-                                    .build());
+                            MediaEntityBuilder
+                                    .createScreenCaptureFromPath(screenshotPath)
+                                    .build()
+                    );
 
-        } catch (Exception e) {
+                } catch (Exception e) {
 
-            ReportEngine.getCurrentStep()
-                    .fail(
-                            "Step Failed - Screenshot unavailable: "
-                                    + e.getMessage());
+                    ReportEngine.getCurrentStep()
+                            .fail(
+                                    "Step Failed - Screenshot unavailable: "
+                                            + e.getMessage()
+                            );
+                }
+            }
 
+            case SKIPPED -> {
+
+                ReportEngine.getCurrentStep()
+                        .skip("Step Skipped");
+            }
+
+            case PENDING -> {
+
+                ReportEngine.getCurrentStep()
+                        .skip("Step Pending");
+            }
+
+            case UNDEFINED -> {
+
+                ReportEngine.getCurrentStep()
+                        .skip("Step Undefined");
+            }
+
+            case AMBIGUOUS -> {
+
+                ReportEngine.getCurrentStep()
+                        .fail("Step Ambiguous");
+            }
+            default -> {
+                ReportEngine.getCurrentStep().getStatus();
+            }
         }
-
     }
     private void handleTestCaseFinished(
             TestCaseFinished event) {
