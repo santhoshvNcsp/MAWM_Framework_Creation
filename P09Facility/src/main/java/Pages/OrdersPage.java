@@ -1,3 +1,4 @@
+
 package Pages;
 
 import com.p09.framework.context.ScenarioContext;
@@ -101,25 +102,21 @@ public class OrdersPage extends BasePage {
 
     public static final By orderStatusValidation=By.xpath(
             ("(//div[@data-component-id='MinimumStatusDescription'])[1]"
-    ));
+            ));
 
 
     public void navigateToAnyUi(
             String uiName)
             throws InterruptedException {
         click(
-                menuToggleButton,
-                "Clicked"
-        );
+                menuToggleButton);
         click(
-                searchBarInLandingPage,
-                "Search Bar in Landing Page"
-        );
-        type(searchBarInLandingPage,uiName,"Search Bar");
+                searchBarInLandingPage);
+        type(searchBarInLandingPage,uiName);
         if (Objects.requireNonNull(searchBarInLandingPage.getAttribute("value")).equalsIgnoreCase(uiName)){
-            if(isDisplayed(clickOrdersFromOptions,"Orders drop down displayed")) {
-                click(clickOrdersFromOptions, "User navigated to Orders Page");
-                if (isDisplayed(showingTextInOrdersPageForVerification,"Showing")) {
+            if(isDisplayed(clickOrdersFromOptions)) {
+                click(clickOrdersFromOptions);
+                if (isDisplayed(showingTextInOrdersPageForVerification)) {
                     report.addReportStepWithScreenshot(StepStatus.PASS, "user entered the orders page");
                     clearCreatedDateTimeFilter();
                 }
@@ -134,9 +131,9 @@ public class OrdersPage extends BasePage {
         System.out.println(clearButton.isEnabled()+" is Enabled");
         if (clearButton.isEnabled()) {
             report.addReportStepWithScreenshot(StepStatus.INFO, "Filter Available");
-            click(clearButton, "Cleared the old filter");
+            click(clearButton);
             if (clearButton.isEnabled()){
-                click(clearButton, "Cleared the old filter");
+                click(clearButton);
             }
             Thread.sleep(2000);
             report.addReportStepWithScreenshot(StepStatus.PASS,"Cleared the Exitsing filter");
@@ -148,55 +145,53 @@ public class OrdersPage extends BasePage {
     }
 
     public void createOrder() throws InterruptedException{
-        click(clickCreateOrderButton,"Create Order Button Clicked");
-        if (isDisplayed(expandAllDuringOrderCreation,"Expand All")){
-            click(expandAllDuringOrderCreation,"Expanded");
-            type(enterOrderType,"190","Order Type Value Entered");
-            if (getAttribute(enterOrderType,"value","Order Type Validation").equalsIgnoreCase("190")){
-                type(enterOrderOrgFacility,"P09","Org Facility");
-                if (getAttribute(enterOrderOrgFacility,"value","Org Facility Validation").equalsIgnoreCase("P09")){
-                    if(isDisplayed(selectFacility,"conf")){
-                        click(selectFacility,"");
+        click(clickCreateOrderButton);
+        if (isDisplayed(expandAllDuringOrderCreation)){
+            click(expandAllDuringOrderCreation);
+            type(enterOrderType,"190");
+            if (getAttribute(enterOrderType,"value").equalsIgnoreCase("190")){
+                type(enterOrderOrgFacility,"P09");
+                if (getAttribute(enterOrderOrgFacility,"value").equalsIgnoreCase("P09")){
+                    if(isDisplayed(selectFacility)){
+                        click(selectFacility);
                     }
                     hover(enterOrderDestFacility);
-                    type(enterOrderDestFacility,"P09","Destination Facility");
-                    if(isDisplayed(selectFacility,"conf")){
-                        click(selectFacility,"");
+                    type(enterOrderDestFacility,"P09");
+                    if(isDisplayed(selectFacility)){
+                        click(selectFacility);
                     }
-                    if (getAttribute(enterOrderDestFacility,"value","Dest Facility Validation").equalsIgnoreCase("P09")) {
+                    if (getAttribute(enterOrderDestFacility,"value").equalsIgnoreCase("P09")) {
                         Thread.sleep(2000);
-                        click(saveCreatedOrder,"Order Created");
+                        click(saveCreatedOrder);
                         report.addReportStepWithScreenshot(StepStatus.PASS,"Order Created");
-                        ScenarioContext.set("Created Order",getText(getCreatedOrderId,"Order Value"));
+                        ScenarioContext.set("Created Order",getText(getCreatedOrderId));
                         report.addReportStepWithoutScreenshot(StepStatus.PASS,"order Id:"+getCreatedOrderId.getText());
                     }
                 }
             }
         }
-        click(closeCreatedOrder,"Closed Order in Created Status");
+        click(closeCreatedOrder);
         Thread.sleep(2000);
-        type(filterOrderByOrderId,ScenarioContext.get("Created Order").toString(),"Filter Based on Order");
-        if (getAttribute(filterOrderByOrderId,"value","Order").equalsIgnoreCase(ScenarioContext.get("Created Order").toString())){
-            pressEnter(filterOrderByOrderId,"Filtered");
+        type(filterOrderByOrderId,ScenarioContext.get("Created Order").toString());
+        if (getAttribute(filterOrderByOrderId,"value").equalsIgnoreCase(ScenarioContext.get("Created Order").toString())){
+            pressEnter(filterOrderByOrderId);
             Thread.sleep(2000);
-            click(clickOrderToRedirectRelatedLinks,"Order Id Selected");
+            click(clickOrderToRedirectRelatedLinks);
             Thread.sleep(2000);
-            click(clickRelatedLinks,"Related Links From Orders");
-            if (isDisplayed(clickOrderLines,"Order Lines")){
-                click(clickOrderLines,"Navigated to order lines from orders");
-                if (isDisplayed(noResFnd,"No Records Found")){
-                    click(createOrderLine,"Order Line Create");
-                    if (isDisplayed(expandAllDuringOrderCreation,"expand all order lines")){
-                        click(expandAllDuringOrderCreation,"expanded order lines fields");
-                        type(passOrderLineValue,"1","Order line entered");
+            click(clickRelatedLinks);
+            if (isDisplayed(clickOrderLines)){
+                click(clickOrderLines);
+                if (isDisplayed(noResFnd)){
+                    click(createOrderLine);
+                    if (isDisplayed(expandAllDuringOrderCreation)){
+                        click(expandAllDuringOrderCreation);
+                        type(passOrderLineValue,"1");
 
-//                        type(passItemId,"19005","Item Id Passed");
-                        click(itemSearchOrder,"Clicked Search button to filter item");
+//                        type(passItemId,"19005");
+                        click(itemSearchOrder);
                         click(
-                                showAllFiltersAsnDetail,
-                                "Clicked Show All Filters"
-                        );
-                        type(primaryBarcode,"19005","");
+                                showAllFiltersAsnDetail);
+                        type(primaryBarcode,"19005");
                         Thread.sleep(2000);
                         clickSearchAfterItemBarcodeEntered.click();
                         Thread.sleep(2000);
@@ -204,82 +199,79 @@ public class OrdersPage extends BasePage {
                         Thread.sleep(2000);
                         submitItemSearch.click();
                         Thread.sleep(2000);
-                        type(passOrderLineQty,"5","OrderlineQty Passed");
-                        click(saveCreatedOrder,"save order line");
-                        click(closeCreatedOrder,"Closed Order Lines");
+                        type(passOrderLineQty,"5");
+                        click(saveCreatedOrder);
+                        click(closeCreatedOrder);
                         Thread.sleep(2000);
-                        click(redirectToOrdersFromOrderLine,"OrderLine - Orders");
+                        click(redirectToOrdersFromOrderLine);
                         Thread.sleep(2000);
-                        click(clickOrderToRedirectRelatedLinks,"Order Id Selected");
+                        click(clickOrderToRedirectRelatedLinks);
                         Thread.sleep(2000);
-                        click(clickMoreOrders,"More clicked");
-                        if (isDisplayed(assignPipeline,"checking assign pipeline option")){
-                            click(assignPipeline,"Assign Pipeline Clicked");
+                        click(clickMoreOrders);
+                        if (isDisplayed(assignPipeline)){
+                            click(assignPipeline);
                             Thread.sleep(4000);
                             if (selectPipeline.isDisplayed()){
-                                click(selectPipeline,"Drop down opened");
-                                if (getText(selectDemoPipeline,"").contains("DEMO")){
-                                    click(selectDemoPipeline,"Selected");
+                                click(selectPipeline);
+                                if (getText(selectDemoPipeline).contains("DEMO")){
+                                    click(selectDemoPipeline);
                                 }
                             }
                             Thread.sleep(3000);
                         }
-                        click(submitItemSearch,"Submitted the PipeLine");
+                        click(submitItemSearch);
                         Thread.sleep(3000);
                         waitForStatus(orderStatusValidation,
-                                () -> click(refresh, "Refreshing ASN Page" + driver.findElement(orderStatusValidation).getText()),
+                                () -> click(refresh),
                                 "Released");
                         report.addReportStepWithScreenshot(StepStatus.PASS,"Order Created");
-                        click(clickOrderToRedirectRelatedLinks,"Order Id Selected");
+                        click(clickOrderToRedirectRelatedLinks);
                         Thread.sleep(2000);
-                        click(clickMoreOrders,"");
-                        if (isDisplayed(runWavesFromOrders,"Run Waves From Orders")){
-                            click(runWavesFromOrders,"Run Waves");
+                        click(clickMoreOrders);
+                        if (isDisplayed(runWavesFromOrders)){
+                            click(runWavesFromOrders);
                         }
-                        if (isDisplayed(orderPlanStr,"Order Plan Str input")){
+                        if (isDisplayed(orderPlanStr)){
                             Thread.sleep(2000);
-                            click(orderPlanStr,"orderPlanStr");
+                            click(orderPlanStr);
                             Thread.sleep(2000);
-                            type(typeOrderPlanStr,"190","");
+                            type(typeOrderPlanStr,"190");
                             Thread.sleep(2000);
-                            click(select190OrdPlan,"clicked");
+                            click(select190OrdPlan);
                             Thread.sleep(2000);
-                            click(submitItemSearch,"Submitted order plan str");
+                            click(submitItemSearch);
                             Thread.sleep(2000);
                             waitForStatus(orderStatusValidation,
-                                    () -> click(refresh, "Refreshing ASN Page" + driver.findElement(orderStatusValidation).getText()),
+                                    () -> click(refresh),
                                     "Allocated");
                             Thread.sleep(2000);
-                            click(clickOrderToRedirectRelatedLinks,"Order Id Selected");
+                            click(clickOrderToRedirectRelatedLinks);
                             Thread.sleep(2000);
-                            click(clickRelatedLinks,"Related Links From Orders");
+                            click(clickRelatedLinks);
                             Thread.sleep(2000);
-                            click(clickOrderLines,"Navigated to order lines from orders");
+                            click(clickOrderLines);
                             Thread.sleep(2000);
-                            click(getOrderLineNumberForWaveNbr,"");
+                            click(getOrderLineNumberForWaveNbr);
                             Thread.sleep(2000);
-                            click(clickDetailsOrderLineForWaveNbr,"");
+                            click(clickDetailsOrderLineForWaveNbr);
                             Thread.sleep(2000);
-                            if (isDisplayed(expandAllDuringOrderCreation,"Expand All")) {
-                                click(expandAllDuringOrderCreation, "Expanded");
+                            if (isDisplayed(expandAllDuringOrderCreation)) {
+                                click(expandAllDuringOrderCreation);
                             }
                             Thread.sleep(2000);
                             hover(getWaveNbr);
                             ScenarioContext.set("wave nbr",getWaveNbr.getText());
                             System.out.println("Wave Number "+ScenarioContext.get("wave nbr"));
                             report.addReportStepWithoutScreenshot(StepStatus.PASS,ScenarioContext.get("wave nbr").toString());
-                            click(closeCreatedOrder,"Closed Order Lines");
+                            click(closeCreatedOrder);
                             Thread.sleep(2000);
-                            click(redirectToOrdersFromOrderLine,"OrderLine - Orders");
+                            click(redirectToOrdersFromOrderLine);
                             Thread.sleep(2000);
 
                         }
                     }
                 }
             }
-
-
-
 
             Thread.sleep(4000);
             report.addReportStepWithScreenshot(StepStatus.PASS,"Order Filtered and clicked");

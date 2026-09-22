@@ -12,6 +12,7 @@ import java.time.Duration;
 public abstract class BasePage {
 
     protected final WebDriver driver;
+    protected ReportManager report;
 
     /*
      * Normal UI wait
@@ -25,8 +26,6 @@ public abstract class BasePage {
      */
     protected final FluentWait<WebDriver> fluentWait;
 
-    protected final ReportManager report =
-            ReportManager.getInstance();
 
 
     protected BasePage() {
@@ -40,11 +39,14 @@ public abstract class BasePage {
         this.wait =
                 DriverManager.getWait();
 
+
         /*
          * Business/status FluentWait
          */
         this.fluentWait =
                 DriverManager.getFluentWait();
+
+        this.report = ReportManager.getInstance();
 
         PageFactory.initElements(
                 driver,
@@ -80,54 +82,56 @@ public abstract class BasePage {
     // =========================================================
 
     protected void click(
-            WebElement element,
-            String elementName) {
+            WebElement element) {
 
         try {
 
             waitForClickable(element);
-
             element.click();
 
-            report.pass(
-                    "Clicked : "
-                            + elementName);
-
         } catch (ElementClickInterceptedException e) {
+
+            System.out.println(
+                    "[CLICK] Normal click failed"
+                            + " | Attempting JS click");
 
             try {
 
                 jsClick(element);
 
-                report.warning(
-                        "Normal click intercepted. "
-                                + "JavaScript click used for : "
-                                + elementName);
+                System.out.println(
+                        "[CLICK] JS click succeeded");
 
             } catch (Exception jsException) {
 
+                System.err.println(
+                        "[CLICK] JS click also failed");
+
                 handleFailure(
                         element,
-                        elementName,
                         jsException);
             }
 
         } catch (TimeoutException e) {
 
+            System.out.println(
+                    "[CLICK] Normal click timed out"
+                            + " | Attempting JS click");
+
             try {
 
                 jsClick(element);
 
-                report.warning(
-                        "Normal click timed out. "
-                                + "JavaScript click used for : "
-                                + elementName);
+                System.out.println(
+                        "[CLICK] JS click succeeded");
 
             } catch (Exception jsException) {
 
+                System.err.println(
+                        "[CLICK] JS click also failed");
+
                 handleFailure(
                         element,
-                        elementName,
                         jsException);
             }
 
@@ -135,7 +139,6 @@ public abstract class BasePage {
 
             handleFailure(
                     element,
-                    elementName,
                     e);
         }
     }
@@ -147,8 +150,7 @@ public abstract class BasePage {
 
     protected void type(
             WebElement element,
-            String value,
-            String elementName) {
+            String value) {
 
         try {
 
@@ -198,21 +200,18 @@ public abstract class BasePage {
                         StaleElementReferenceException |
                         ElementNotInteractableException e) {
 
+                    System.out.println(
+                            "[TYPE] Retrying input operation");
+
                     return false;
                 }
             });
 
-            report.pass(
-                    "Entered '"
-                            + value
-                            + "' into "
-                            + elementName);
 
         } catch (Exception e) {
 
             handleFailure(
                     element,
-                    elementName,
                     e);
         }
     }
@@ -223,8 +222,7 @@ public abstract class BasePage {
     // =========================================================
 
     protected void pressEnter(
-            WebElement element,
-            String elementName) {
+            WebElement element) {
 
         try {
 
@@ -247,15 +245,11 @@ public abstract class BasePage {
                 }
             });
 
-            report.pass(
-                    "Pressed ENTER on : "
-                            + elementName);
 
         } catch (Exception e) {
 
             handleFailure(
                     element,
-                    elementName,
                     e);
         }
     }
@@ -266,8 +260,7 @@ public abstract class BasePage {
     // =========================================================
 
     protected String getText(
-            WebElement element,
-            String elementName) {
+            WebElement element) {
 
         try {
 
@@ -287,10 +280,6 @@ public abstract class BasePage {
                         }
                     });
 
-            report.info(
-                    elementName
-                            + " : "
-                            + text);
 
             return text;
 
@@ -298,7 +287,6 @@ public abstract class BasePage {
 
             handleFailure(
                     element,
-                    elementName,
                     e);
 
             return null;
@@ -312,8 +300,7 @@ public abstract class BasePage {
 
     protected String getAttribute(
             WebElement element,
-            String attribute,
-            String elementName) {
+            String attribute) {
 
         try {
 
@@ -334,12 +321,6 @@ public abstract class BasePage {
                         }
                     });
 
-            report.info(
-                    elementName
-                            + " - "
-                            + attribute
-                            + " : "
-                            + value);
 
             return value;
 
@@ -347,7 +328,6 @@ public abstract class BasePage {
 
             handleFailure(
                     element,
-                    elementName,
                     e);
 
             return null;
@@ -360,8 +340,7 @@ public abstract class BasePage {
     // =========================================================
 
     protected boolean isDisplayed(
-            WebElement element,
-            String elementName) {
+            WebElement element) {
 
         try {
 
@@ -385,8 +364,7 @@ public abstract class BasePage {
 
     protected void selectByVisibleText(
             WebElement element,
-            String value,
-            String elementName) {
+            String value) {
 
         try {
 
@@ -410,17 +388,11 @@ public abstract class BasePage {
                 }
             });
 
-            report.pass(
-                    "Selected '"
-                            + value
-                            + "' from "
-                            + elementName);
 
         } catch (Exception e) {
 
             handleFailure(
                     element,
-                    elementName,
                     e);
         }
     }
@@ -644,15 +616,9 @@ public abstract class BasePage {
 
             handleFailure(
                     element,
-                    "Hover Element",
                     e);
         }
     }
-
-
-    // =========================================================
-    // ALERT
-    // =========================================================
 
     protected void acceptAlert() {
 
@@ -677,11 +643,6 @@ public abstract class BasePage {
                 .dismiss();
     }
 
-
-    // =========================================================
-    // BUSINESS STATUS VALIDATION
-    // =========================================================
-
     protected void waitForStatus(
             By statusLocator,
             Runnable actionIfNotReady,
@@ -705,13 +666,6 @@ public abstract class BasePage {
 
                     return true;
                 }
-
-                /*
-                 * Expected status has not been reached.
-                 *
-                 * Perform the business-specific action,
-                 * e.g. refresh the page.
-                 */
                 actionIfNotReady.run();
 
                 return false;
@@ -726,22 +680,19 @@ public abstract class BasePage {
     }
 
 
-    // =========================================================
-    // FAILURE
-    // =========================================================
-
     private void handleFailure(
             WebElement element,
-            String elementName,
             Exception exception) {
 
         String errorMessage =
                 exception.getMessage();
 
-        report.fail(
-                "Failed to perform operation on "
-                        + elementName
-                        + ". Reason: "
+        System.err.println(
+                "[UI FAILURE] "
+                        + exception.getClass().getSimpleName()
+                        + " | "
                         + errorMessage);
+
+
     }
 }

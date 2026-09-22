@@ -2,6 +2,7 @@ package Pages;
 
 import com.p09.framework.context.ScenarioContext;
 import com.p09.framework.pages.BasePage;
+import com.p09.framework.reporting.StepStatus;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -30,29 +31,29 @@ public class WavesPage extends BasePage {
             String uiName)
             throws InterruptedException {
         click(
-                menuToggleButton,
-                "Clicked"
+                menuToggleButton
         );
         click(
-                searchBarInLandingPage,
-                "Search Bar in Landing Page"
+                searchBarInLandingPage
         );
-        type(searchBarInLandingPage, uiName, "Search Bar");
-        if (getAttribute(searchBarInLandingPage,"value","Search bar value").equalsIgnoreCase(
+        type(searchBarInLandingPage, uiName);
+        if (getAttribute(searchBarInLandingPage,"value").equalsIgnoreCase(
                 uiName
         )){
-            click(clickWaveRuns,"User navigate to wave runs");
+            click(clickWaveRuns);
         }
-        if (isDisplayed(showingTextInWavesPageForVerification,"")){
-            type(waveRunId, ScenarioContext.get("wave nbr").toString(),"");
-            if (getAttribute(waveRunId,"value","").equalsIgnoreCase(ScenarioContext.get("wave nbr").toString())){
-                pressEnter(waveRunId,"");
+        if (isDisplayed(showingTextInWavesPageForVerification)){
+            report.addReportStepWithScreenshot(StepStatus.PASS,"user navigated to Wave Runs Page");
+            type(waveRunId, ScenarioContext.get("wave nbr").toString());
+            if (getAttribute(waveRunId,"value").equalsIgnoreCase(ScenarioContext.get("wave nbr").toString())){
+                pressEnter(waveRunId);
                 Thread.sleep(2000);
+                report.addReportStepWithScreenshot(StepStatus.PASS,"Wave Id Filtered");
                 waitForStatus(waveStatus,
-                        () -> click(refresh, "Refreshing ASN Page" + driver.findElement(waveStatus).getText()),
+                        () -> click(refresh),
                         "Completed");
             }
-            click(selectTheWave,"");
+            click(selectTheWave);
 
         }
     }

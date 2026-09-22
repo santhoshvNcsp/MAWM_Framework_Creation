@@ -22,14 +22,12 @@ public class LoginPage extends BasePage {
 
     public void login() {
         report.addReportStepWithScreenshot(StepStatus.PASS, "Logging in with username: " + ConfigManager.get("username"));
-        type(username, ConfigManager.get("username"), "Username Field");
-        report.pass("Entered username: " + ConfigManager.get("username"));
-        type(password, ConfigManager.get("password"), "Password Field");
-        click(loginButton, "Login Button");
-        if (isDisplayed(warehouseManagementTab, "Warehouse Management Tab")) {
+        type(username, ConfigManager.get("username"));
+        report.pass("Logging with following username: " + ConfigManager.get("username"));
+        type(password, ConfigManager.get("password"));
+        click(loginButton);
+        if (isDisplayed(warehouseManagementTab)) {
             report.addReportStepWithScreenshot(StepStatus.PASS, "Login successful");
-            report.pass("Warehouse Management tab is displayed");
-            report.addReportStepWithScreenshot(StepStatus.PASS, "User Landed to Landing Page");
         } else {
             report.addReportStepWithScreenshot(StepStatus.FAIL, "Login failed");
             report.fail("Failed to land on Landing Page");
