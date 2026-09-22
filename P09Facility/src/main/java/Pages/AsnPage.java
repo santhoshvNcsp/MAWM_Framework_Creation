@@ -1,6 +1,4 @@
 package Pages;
-
-import com.aventstack.extentreports.util.Assert;
 import com.p09.framework.config.ConfigManager;
 import com.p09.framework.context.ScenarioContext;
 import com.p09.framework.pages.BasePage;
@@ -187,32 +185,19 @@ public class AsnPage extends BasePage {
     public void navigateToUi(String uiName)
             throws InterruptedException {
 
-        click(
-                menuToggleButton,
-                "Clicked"
-        );
+        click(menuToggleButton);
 
-        click(
-                searchBarInLandingPage,
-                "Search Bar in Landing Page"
-        );
+        click(searchBarInLandingPage);
 
         if (uiName.equalsIgnoreCase("ASNs")) {
 
-            type(
-                    searchBarInLandingPage,
-                    uiName,
-                    "Search Bar in Landing Page"
-            );
+            type(searchBarInLandingPage,
+                    uiName);
 
-            click(
-                    clickAsnSFromMenu,
-                    "Click ASN from Menu"
-            );
+            click(clickAsnSFromMenu);
 
             if (isDisplayed(
-                    asnTextInAsnUi,
-                    "ASN Text in ASN UI"
+                    asnTextInAsnUi
             )) {
 
                 report.addReportStepWithScreenshot(
@@ -297,22 +282,16 @@ public class AsnPage extends BasePage {
 //        );
 
 
-        click(
-                createAsnButtonInAsnUi,
-                "Clicked generate ASN button"
-        );
+        click(createAsnButtonInAsnUi);
 
 
         Random random =
                 new Random();
 
 
-        type(
-                asnIdFromGenerateAsn,
+        type(asnIdFromGenerateAsn,
                 "ASN190"
-                        + random.nextInt(100000),
-                "ASN ID"
-        );
+                        + random.nextInt(100000));
 
 
         System.out.println(
@@ -346,10 +325,7 @@ public class AsnPage extends BasePage {
         );
 
 
-        click(
-                submitAsnOnceCreated,
-                "Clicked Submit ASN button"
-        );
+        click(submitAsnOnceCreated);
 
 
         report.addReportStepWithoutScreenshot(
@@ -368,11 +344,8 @@ public class AsnPage extends BasePage {
 //        Thread.sleep(8000);
 
 
-        type(
-                filterAsnById,
-                createdAsnId,
-                "Filter ASN By ID"
-        );
+        type(filterAsnById,
+                createdAsnId);
 
 
         if (Objects.equals(
@@ -380,10 +353,7 @@ public class AsnPage extends BasePage {
                 createdAsnId
         )) {
 
-            pressEnter(
-                    filterAsnById,
-                    "Pressed Enter to filter ASN by ID"
-            );
+            pressEnter(filterAsnById);
 
             report.addReportStepWithScreenshot(
                     StepStatus.PASS,
@@ -419,25 +389,16 @@ public class AsnPage extends BasePage {
                 );
 
 
-        click(
-                asnGet,
-                "Clicked ASN ID from the list"
-        );
+        click(asnGet);
 
 
 //        Thread.sleep(5000);
 
 
-        click(
-                clickRelatedLinks,
-                "Clicked Related Links"
-        );
+        click(clickRelatedLinks);
 
 
-        click(
-                asnDetailsText,
-                "Clicked ASN Details"
-        );
+        click(asnDetailsText);
 
 
 //        waitForPageLoad();
@@ -456,10 +417,7 @@ public class AsnPage extends BasePage {
 //            );
 
 
-            click(
-                    createAsnDetail,
-                    "Clicked Create ASN Detail"
-            );
+            click(createAsnDetail);
 
 
             Thread.sleep(3000);
@@ -471,26 +429,17 @@ public class AsnPage extends BasePage {
                     createdAsnId
             )) {
 
-                click(
-                        selectItemSearchInDetail,
-                        "Clicked Item Search"
-                );
+                click(selectItemSearchInDetail);
 
 
-                click(
-                        showAllFiltersAsnDetail,
-                        "Clicked Show All Filters"
-                );
+                click(showAllFiltersAsnDetail);
 
 
 //                Thread.sleep(5000);
 
 
-                type(
-                        primaryBarcode,
-                        items.get(cntr),
-                        "Primary Barcode"
-                );
+                type(primaryBarcode,
+                        items.get(cntr));
 
 
                 if (Objects.equals(
@@ -499,10 +448,7 @@ public class AsnPage extends BasePage {
                         items.get(cntr)
                 )) {
 
-                    pressEnter(
-                            primaryBarcode,
-                            "Pressed Enter for Primary Barcode"
-                    );
+                    pressEnter(primaryBarcode);
 
 
                     report.addReportStepWithScreenshot(
@@ -512,67 +458,43 @@ public class AsnPage extends BasePage {
                     );
 
 
-                    click(
-                            clickSearchAfterItemBarcodeEntered,
-                            "Clicked Search After Entering Primary Barcode"
-                    );
+                    click(clickSearchAfterItemBarcodeEntered);
 
 
-                    click(
-                            selectItemFromDetailSearch,
-                            "Selected Item From Detail Search"
-                    );
+                    click(selectItemFromDetailSearch);
 
 
-                    click(
-                            submitItemSearch,
-                            "Clicked Submit Item Search"
-                    );
+                    click(submitItemSearch);
 
 
                     waitForPageLoad();
 
 
-                    type(
-                            shippedQty,
-                            quantitiesList.get(cntr),
-                            "Shipped Quantity"
-                    );
+                    type(shippedQty,
+                            quantitiesList.get(cntr));
 
 
                     Thread.sleep(2000);
 
 
-                    click(
-                            quantityUomDrop,
-                            "Clicked Quantity UOM Drop"
-                    );
+                    click(quantityUomDrop);
 
 
                     Thread.sleep(2000);
 
 
-                    type(
-                            typeQtyUom,
-                            "Unit",
-                            "Type Quantity UOM"
-                    );
+                    type(typeQtyUom,
+                            "Unit");
 //                    Thread.sleep(4000);
 
 
-                    click(
-                            selectUomAsUnit,
-                            "Selected UOM as Unit"
-                    );
+                    click(selectUomAsUnit);
 
 
                     Thread.sleep(3000);
 
 
-                    click(
-                            saveAsnDetail,
-                            "Clicked Save ASN Detail"
-                    );
+                    click(saveAsnDetail);
 
 
                     cntr++;
@@ -590,10 +512,7 @@ public class AsnPage extends BasePage {
                 }
 
 
-                click(
-                        closeCreatedAsnDetail,
-                        "Clicked Close Created ASN Detail"
-                );
+                click(closeCreatedAsnDetail);
             }
 
 
@@ -601,10 +520,7 @@ public class AsnPage extends BasePage {
         }
 
 
-        click(
-                redirectToAsnFromAsnDetail,
-                "Redirected to ASN from ASN Details"
-        );
+        click(redirectToAsnFromAsnDetail);
 
 
         report.addReportStepWithScreenshot(
@@ -614,7 +530,7 @@ public class AsnPage extends BasePage {
 //        private final By asnStatusValidation =
 //                By.xpath("(//div[@data-component-id='AsnStatusDescription'])[1]");
         waitForStatus(asnStatusValidation,
-                () -> click(refresh, "Refreshing ASN Page" + driver.findElement(asnStatusValidation).getText()),
+                () -> click(refresh),
                 status);
 
 
@@ -693,10 +609,7 @@ public class AsnPage extends BasePage {
         // GENERATE ASN
         // =========================================================
 
-        click(
-                createAsnButtonInAsnUi,
-                "Clicked generate ASN button"
-        );
+        click(createAsnButtonInAsnUi);
 
         // =========================================================
         // GENERATE ASN ID
@@ -705,12 +618,9 @@ public class AsnPage extends BasePage {
         Random random =
                 new Random();
 
-        type(
-                asnIdFromGenerateAsn,
+        type(asnIdFromGenerateAsn,
                 "ASN190"
-                        + random.nextInt(100000),
-                "ASN ID"
-        );
+                        + random.nextInt(100000));
 
         System.out.println(
                 "Tried with normal click"
@@ -757,10 +667,7 @@ public class AsnPage extends BasePage {
         // SUBMIT ASN
         // =========================================================
 
-        click(
-                submitAsnOnceCreated,
-                "Clicked Submit ASN button"
-        );
+        click(submitAsnOnceCreated);
 
         report.addReportStepWithoutScreenshot(
                 StepStatus.PASS,
@@ -777,20 +684,14 @@ public class AsnPage extends BasePage {
         // FILTER ASN
         // =========================================================
 
-        type(
-                filterAsnById,
-                createdAsnId,
-                "Filter ASN By ID"
-        );
+        type(filterAsnById,
+                createdAsnId);
 
         if (Objects.equals(
                 filterAsnById.getAttribute("value"),
                 createdAsnId)) {
 
-            pressEnter(
-                    filterAsnById,
-                    "Pressed Enter to filter ASN by ID"
-            );
+            pressEnter(filterAsnById);
 
             report.addReportStepWithScreenshot(
                     StepStatus.PASS,
@@ -830,10 +731,7 @@ public class AsnPage extends BasePage {
                                 )
                 );
 
-        click(
-                asnGet,
-                "Clicked ASN ID from the list"
-        );
+        click(asnGet);
 
         Thread.sleep(3000);
 
@@ -841,15 +739,9 @@ public class AsnPage extends BasePage {
         // OPEN ASN DETAILS
         // =========================================================
 
-        click(
-                clickRelatedLinks,
-                "Clicked Related Links"
-        );
+        click(clickRelatedLinks);
 
-        click(
-                asnDetailsText,
-                "Clicked ASN Details"
-        );
+        click(asnDetailsText);
 
         // =========================================================
         // CREATE ASN LINE DETAILS
@@ -859,10 +751,7 @@ public class AsnPage extends BasePage {
 
             Thread.sleep(3000);
 
-            click(
-                    createAsnDetail,
-                    "Clicked Create ASN Detail"
-            );
+            click(createAsnDetail);
 
             Thread.sleep(3000);
 
@@ -874,34 +763,22 @@ public class AsnPage extends BasePage {
                 // ITEM SEARCH
                 // =================================================
 
-                click(
-                        selectItemSearchInDetail,
-                        "Clicked Item Search"
-                );
+                click(selectItemSearchInDetail);
 
-                click(
-                        showAllFiltersAsnDetail,
-                        "Clicked Show All Filters"
-                );
+                click(showAllFiltersAsnDetail);
 
                 // =================================================
                 // ENTER ITEM
                 // =================================================
 
-                type(
-                        primaryBarcode,
-                        items.get(cntr),
-                        "Primary Barcode"
-                );
+                type(primaryBarcode,
+                        items.get(cntr));
 
                 if (Objects.equals(
                         primaryBarcode.getAttribute("value"),
                         items.get(cntr))) {
 
-                    pressEnter(
-                            primaryBarcode,
-                            "Pressed Enter for Primary Barcode"
-                    );
+                    pressEnter(primaryBarcode);
 
                     report.addReportStepWithScreenshot(
                             StepStatus.PASS,
@@ -909,20 +786,11 @@ public class AsnPage extends BasePage {
                                     + items.get(cntr)
                     );
 
-                    click(
-                            clickSearchAfterItemBarcodeEntered,
-                            "Clicked Search After Entering Primary Barcode"
-                    );
+                    click(clickSearchAfterItemBarcodeEntered);
 
-                    click(
-                            selectItemFromDetailSearch,
-                            "Selected Item From Detail Search"
-                    );
+                    click(selectItemFromDetailSearch);
 
-                    click(
-                            submitItemSearch,
-                            "Clicked Submit Item Search"
-                    );
+                    click(submitItemSearch);
 
                     waitForPageLoad();
 
@@ -930,11 +798,8 @@ public class AsnPage extends BasePage {
                     // SHIPPED QUANTITY
                     // =================================================
 
-                    type(
-                            shippedQty,
-                            quantitiesList.get(cntr),
-                            "Shipped Quantity"
-                    );
+                    type(shippedQty,
+                            quantitiesList.get(cntr));
 
                     Thread.sleep(2000);
 
@@ -942,30 +807,18 @@ public class AsnPage extends BasePage {
                     // QUANTITY UOM
                     // =================================================
 
-                    click(
-                            quantityUomDrop,
-                            "Clicked Quantity UOM Drop"
-                    );
+                    click(quantityUomDrop);
 
                     Thread.sleep(2000);
 
-                    type(
-                            typeQtyUom,
-                            "Unit",
-                            "Type Quantity UOM"
-                    );
+                    type(typeQtyUom,
+                            "Unit");
 
-                    click(
-                            selectUomAsUnit,
-                            "Selected UOM as Unit"
-                    );
+                    click(selectUomAsUnit);
 
                     Thread.sleep(3000);
 
-                    click(
-                            saveAsnDetail,
-                            "Clicked Save ASN Detail"
-                    );
+                    click(saveAsnDetail);
 
                     cntr++;
 
@@ -983,10 +836,7 @@ public class AsnPage extends BasePage {
                     );
                 }
 
-                click(
-                        closeCreatedAsnDetail,
-                        "Clicked Close Created ASN Detail"
-                );
+                click(closeCreatedAsnDetail);
             }
 
             totalDetail--;
@@ -996,10 +846,7 @@ public class AsnPage extends BasePage {
         // REDIRECT TO ASN PAGE
         // =========================================================
 
-        click(
-                redirectToAsnFromAsnDetail,
-                "Redirected to ASN from ASN Details"
-        );
+        click(redirectToAsnFromAsnDetail);
 
         report.addReportStepWithScreenshot(
                 StepStatus.PASS,
@@ -1012,13 +859,7 @@ public class AsnPage extends BasePage {
 
         waitForStatus(
                 asnStatusValidation,
-                () -> click(
-                        refresh,
-                        "Refreshing ASN Page "
-                                + driver.findElement(
-                                asnStatusValidation
-                        ).getText()
-                ),
+                () -> click(refresh),
                 status
         );
 
@@ -1046,10 +887,7 @@ public class AsnPage extends BasePage {
         // MORE
         // =========================================================
 
-        click(
-                more,
-                "Clicked More"
-        );
+        click(more);
 
         Thread.sleep(2000);
 
@@ -1057,10 +895,7 @@ public class AsnPage extends BasePage {
         // EDIT
         // =========================================================
 
-        click(
-                editAsn,
-                "Clicked Edit ASN"
-        );
+        click(editAsn);
 
         Thread.sleep(3000);
 
@@ -1071,24 +906,15 @@ public class AsnPage extends BasePage {
         // vendorName comes directly from Feature File.
         // =========================================================
 
-        type(
-                vendorId,
-                vendorName,
-                "Vendor ID"
-        );
+        type(vendorId,
+                vendorName);
 
         System.out.println(
                 "Entered Vendor ID: "
                         + vendorName
         );
-        click(
-                saveAsnDetail,
-                "Clicked Save ASN Detail - First Time"
-        );
-        click(
-                closeAsnEdit,
-                "Closed ASN Edit"
-        );
+        click(saveAsnDetail);
+        click(closeAsnEdit);
 
         Thread.sleep(2000);
         ScenarioContext.set(
@@ -1101,13 +927,7 @@ public class AsnPage extends BasePage {
         );
         waitForStatus(
                 asnStatusValidation,
-                () -> click(
-                        refresh,
-                        "Refreshing ASN Page "
-                                + driver.findElement(
-                                asnStatusValidation
-                        ).getText()
-                ),
+                () -> click(refresh),
                 status
         );
 
@@ -1124,34 +944,21 @@ public class AsnPage extends BasePage {
             throws InterruptedException {
         this.uiName = uiName;
 
-        click(
-                menuToggleButton,
-                "Clicked"
-        );
+        click(menuToggleButton);
 
-        click(
-                searchBarInLandingPage,
-                "Search Bar in Landing Page"
-        );
+        click(searchBarInLandingPage);
 
 
         if (uiName.equalsIgnoreCase("ASNs")) {
 
-            type(
-                    searchBarInLandingPage,
-                    uiName,
-                    "Search Bar in Landing Page"
-            );
+            type(searchBarInLandingPage,
+                    uiName);
 
-            click(
-                    clickAsnSFromMenu,
-                    "Click ASN from Menu"
-            );
+            click(clickAsnSFromMenu);
 
 
             if (isDisplayed(
-                    asnTextInAsnUi,
-                    "ASN Text in ASN UI"
+                    asnTextInAsnUi
             )) {
 
                 report.addReportStepWithScreenshot(
@@ -1201,10 +1008,7 @@ public class AsnPage extends BasePage {
                     );
 
             System.out.println(asnGet+"Before click");
-//            click(
-//                    asnGet,
-//                    "Clicked ASN ID from the list"
-//            );
+//            click(//                    asnGet);
             asnGet.click();
             System.out.println(asnGet);
 
@@ -1225,10 +1029,7 @@ public class AsnPage extends BasePage {
                     );
 
 
-//            click(
-//                    asnGet,
-//                    "Clicked ASN ID from the list"
-//            );
+//            click(//                    asnGet);
             asnGet.click();
         }
         System.out.println("Verify asn Ending "+asn);
@@ -1236,20 +1037,14 @@ public class AsnPage extends BasePage {
 
         Thread.sleep(3000);
 
-        click(
-                more,
-                "Clicked More"
-        );
+        click(more);
 
         Thread.sleep(3000);
 
-        click(
-                verify,
-                "Clicked Verify"
-        );
+        click(verify);
         Thread.sleep(4000);
         waitForStatus(asnStatusValidation,
-                () -> click(refresh, "Refreshing ASN Page" + driver.findElement(asnStatusValidation).getText()),
+                () -> click(refresh),
                 "Verified");
 
 
@@ -1315,10 +1110,7 @@ public class AsnPage extends BasePage {
                                     )
                     );
 
-            click(
-                    asnGet,
-                    "Clicked ASN ID from the list"
-            );
+            click(asnGet);
 
         } catch (StaleElementReferenceException s) {
 
@@ -1334,10 +1126,7 @@ public class AsnPage extends BasePage {
                                     )
                     );
 
-            click(
-                    asnGet,
-                    "Clicked ASN ID from the list"
-            );
+            click(asnGet);
         }
 
         Thread.sleep(3000);
@@ -1346,10 +1135,7 @@ public class AsnPage extends BasePage {
         // 3. RELATED LINKS
         // =========================================================
 
-        click(
-                clickRelatedLinks,
-                "To Navigate LPNs"
-        );
+        click(clickRelatedLinks);
 
         Thread.sleep(3000);
 
@@ -1357,10 +1143,7 @@ public class AsnPage extends BasePage {
         // 4. OPEN LPN INVENTORY
         // =========================================================
 
-        click(
-                lpnInventoryAsn,
-                "Redirected TO ILPNs Page"
-        );
+        click(lpnInventoryAsn);
 
         Thread.sleep(4000);
 
@@ -1368,10 +1151,7 @@ public class AsnPage extends BasePage {
         // 5. REFRESH LPN INVENTORY
         // =========================================================
 
-        click(
-                refresh,
-                "Refreshed the ILPNs page"
-        );
+        click(refresh);
 
         Thread.sleep(3000);
 
@@ -3506,10 +3286,7 @@ public class AsnPage extends BasePage {
                             )
                     );
 
-            click(
-                    asnGet,
-                    "Clicked ASN ID for Parent LPN Validation"
-            );
+            click(asnGet);
 
         } catch (StaleElementReferenceException e) {
 
@@ -3524,10 +3301,7 @@ public class AsnPage extends BasePage {
                             )
                     );
 
-            click(
-                    asnGet,
-                    "Clicked ASN ID for Parent LPN Validation"
-            );
+            click(asnGet);
         }
 
         Thread.sleep(3000);
@@ -3536,24 +3310,15 @@ public class AsnPage extends BasePage {
         // 3. OPEN LPN INVENTORY
         // =========================================================
 
-        click(
-                clickRelatedLinks,
-                "Clicked Related Links"
-        );
+        click(clickRelatedLinks);
 
         Thread.sleep(2000);
 
-        click(
-                lpnInventoryAsn,
-                "Opened LPN Inventory"
-        );
+        click(lpnInventoryAsn);
 
         Thread.sleep(4000);
 
-        click(
-                refresh,
-                "Refreshed LPN Inventory"
-        );
+        click(refresh);
 
         Thread.sleep(3000);
 

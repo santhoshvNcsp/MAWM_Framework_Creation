@@ -12,7 +12,7 @@ public class CommonOperations {
             ordersPage.navigateToAnyUi(uiName);
         } else if (uiName.equalsIgnoreCase("Wave")) {
             WavesPage wavesPage = new WavesPage();
-            wavesPage.navigateToAnyUi(uiName);
+            wavesPage.navigateToWaveRuns();
 
         }
 

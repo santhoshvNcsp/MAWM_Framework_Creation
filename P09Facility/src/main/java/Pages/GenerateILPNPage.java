@@ -31,10 +31,10 @@ public class GenerateILPNPage extends BasePage {
 
     public void navigateToWM() throws InterruptedException {
         Thread.sleep(3000);
-        click(menuToggleButton, "Menu Toggle Clicked");
-        type(searchBarInLandingPage, "WM Mobile", "Typed WM Mobile");
+        click(menuToggleButton);
+        type(searchBarInLandingPage, "WM Mobile");
         Thread.sleep(3000);
-        click(clickWmMobileFromMenu, "User Entered to WM Mobile");
+        click(clickWmMobileFromMenu);
         String parentWindowId = driver.getWindowHandle();
         for (String handle : driver.getWindowHandles()) {
             if (!handle.equalsIgnoreCase(parentWindowId)) {
@@ -46,23 +46,23 @@ public class GenerateILPNPage extends BasePage {
 
     public void ILpnCreation() throws InterruptedException {
         Thread.sleep(3000);
-        type(searchBarInLandingPage, "Create Ilpn", "Filtered create ILPN Transaction");
+        type(searchBarInLandingPage, "Create Ilpn");
         Thread.sleep(4000);
-        click(clickCreateILPNInWm, "Entered Create ILPN Transaction");
+        click(clickCreateILPNInWm);
         Thread.sleep(3000);
-        type(scanLpnId, "LPN10002", "Passing Lpn Value");
+        type(scanLpnId, "LPN10002");
         Thread.sleep(2000);
-        pressEnter(scanLpnId, "Entered LPN ID");
+        pressEnter(scanLpnId);
         Thread.sleep(3000);
-        type(scanItem, "19005", "Passed Item");
+        type(scanItem, "19005");
         Thread.sleep(2000);
-        pressEnter(scanItem, "Item Scanned");
+        pressEnter(scanItem);
         Thread.sleep(2000);
-        type(passQtyReceive, "20", "QTY Passed");
+        type(passQtyReceive, "20");
         Thread.sleep(2000);
-        pressEnter(passQtyReceive, "Enetered");
+        pressEnter(passQtyReceive);
         Thread.sleep(2000);
-        click(endILpnButton, "Clicked");
+        click(endILpnButton);
         Thread.sleep(3000);
 
     }

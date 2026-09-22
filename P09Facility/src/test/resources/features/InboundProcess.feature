@@ -8,7 +8,7 @@ Feature: Testing the Inbound Functionality in P09 Environment
 #    And user completes "ReceiveByPallet"
     And user completes "Receiving"
     And user completes "PalletizeILPN"
-#    And user completes "PalletPutaway"
+    And user completes "PalletPutaway"
 #    And user completes "PalletPutaway"
 #    And user completes "PalletizeILPN"
 #    And user completes "UD-Putaway"
