@@ -17,6 +17,7 @@ public final class ConfigManager {
                 throw new RuntimeException("config/config.properties file not found.");
             }
 
+
             properties.load(inputStream);
 
         } catch (IOException e) {
@@ -27,24 +28,13 @@ public final class ConfigManager {
 
     private ConfigManager() {
     }
-
-    /**
-     * Returns the property value as String.
-     */
     public static String get(String key) {
-
         String value = properties.getProperty(key);
-
         if (value == null || value.trim().isEmpty()) {
             throw new RuntimeException("Missing configuration property : " + key);
         }
-
         return value.trim();
     }
-
-    /**
-     * Returns the property value as Integer.
-     */
     public static int getInt(String key) {
 
         try {

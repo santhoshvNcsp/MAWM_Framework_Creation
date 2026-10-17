@@ -5,6 +5,7 @@ import com.p09.framework.reporting.StepStatus;
 import context.ASNData;
 import context.ItemData;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import context.ILPNData;
@@ -12,13 +13,13 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MUPPage extends BasePage {
     public MUPPage() {
@@ -90,197 +91,758 @@ public class MUPPage extends BasePage {
     @FindBy(xpath = "//span[@data-component-id='VendorId']")
     public WebElement vendorId;
 
+    // =========================================================
+// WM MOBILE - TASK PROCESSING
+// =========================================================
+
+    private final By enterTask =
+            By.xpath("//ion-label[@data-component-id='entertask']");
+
+    private final By taskInput =
+            By.xpath("//input[@placeholder='Enter Task']");
+
+    private final By tapToConfirm =
+            By.xpath("//span[text()='Tap To Confirm']");
+
+    private final By acceptLocation =
+            By.xpath("//ion-col[@data-component-id='acceptlocation_barcodetextfield_location']");
+
+    private final By scanLocation =
+            By.xpath("//input[@placeholder='Scan Location']");
+
+    private final By quantityInput =
+            By.xpath("//input[contains(@data-component-id,'acceptquantity_naturalquantityfield_unit')]");
+
+    private final By unitText =
+            By.xpath("//span[contains(text(),' U')]");
+
+    // E2E full-LPN picking: read the required LPN count from the Need field,
+    // then enter that number into the LPN quantity input.
+    private final By e2eLpnNeedText =
+            By.xpath("(//ion-col[@data-component-id='acceptquantity_naturalquantityfield_need'])[1]");
+
+    private final By e2eQuantityInput =
+            By.xpath("//input[@data-component-id='acceptquantity_naturalquantityfield_lpn']");
+
+    private final By okButton =
+            By.xpath("//span[text()='Ok']");
+
+    @FindBy(xpath = "//span[text()='Pick Exception']")
+    public WebElement pickExceptionButton;
+
+    @FindBy(xpath = "//div[contains(text(),'Unpicked')]")
+    public WebElement unpickedMessage;
+
+    @FindBy(xpath = "//button[@data-component-id='popover_confirm']")
+    public WebElement  pickExceptionConfirmButton;
+
+
     private final By asnStatusValidation =
             By.xpath("(//div[@data-component-id='AsnStatusDescription'])[1]");
 
-    //    public void userCompletes(String transaction, String receivingQty) throws InterruptedException {
-    //        String[] qtyToBeReceived = receivingQty.split(",");
-    //        List<String> receivingQtyList = new ArrayList<>();
-    //        for (String qty : qtyToBeReceived){
-    //            receivingQtyList.add(qty.trim());
-    //        }
-    //        System.out.println("Receiving Qty List "+receivingQtyList);
-    //        int cntr=0;
-    //        System.out.println("Full List ");
-    //        ScenarioContext.printAll();
-    //        click(menuToggleButton);
-    //        Thread.sleep(4000);
-    //        type(searchBarInLandingPage, "WM Mobile");
-    //        ScenarioContext.set("parentWindowId", driver.getWindowHandle());
-    //        click(clickWmMobileFromMenu);
-    //        waitForPageLoad();
-    //        Thread.sleep(5000);
-    //        for (String handle : driver.getWindowHandles()) {
-    //            if (!handle.equals(ScenarioContext.get("parentWindowId"))) {
-    //                driver.switchTo().window(handle);
-    //                break;
-    //            }
-    //        }
-    //        Thread.sleep(3000);
-    //        if (transaction.equalsIgnoreCase("Receiving")) {
-    //            type(searchBarInWmMobile, "190 Receiving");
-    //            Thread.sleep(3000);
-    //            click(click190Receiving);
-    //            Thread.sleep(2000);
-    //            type(passAsnIdReceive, ScenarioContext.get("Created Asn ID").toString());
-    ////            Thread.sleep(4000);
-    //            pressEnter(passAsnIdReceive);
-    ////            passAsnIdReceive.sendKeys(Keys.ENTER);
-    //            Thread.sleep(7000);
-    //            pressEnter(passLpnIdReceive);
-    ////            passLpnIdReceive.sendKeys(Keys.ENTER);
-    //            Thread.sleep(5000);
-    //            ScenarioContext.set("lpnIdFromWm", storeLpnIdFromWm.getText());
-    //            report.addReportStepWithScreenshot(StepStatus.PASS, "LPN ID from WM Mobile: " + ScenarioContext.get("lpnIdFromWm"));
-    //            ItemDetails itemDetails = new ItemDetails();
-    //            Thread.sleep(3000);
-    //            type(passItemReceive, itemDetails.primaryItems.getFirst());
+    // Optional inbound putaway warning. This message appears only for some locations.
+    // It must never make the putaway flow fail when it is not present.
+    private final By differentItemDedicatedWarning =
+            By.xpath("//div[contains(text(),'dedicated')]");
+    //permanently dedicated to a different item
 
-    /// /            Thread.sleep(3000);
-    //            pressEnter(passItemReceive);
-    //            Thread.sleep(4000);
-    //            passQtyReceive.sendKeys(receivingQtyList.get(cntr));
-    //            Thread.sleep(2000);
-    //            pressEnter(passQtyReceive);
-    //            Thread.sleep(3000);
-    //            click(endLPNReceive);
-    //            Thread.sleep(3000);
-    //            driver.close();
-    //            driver.switchTo().window(ScenarioContext.get("parentWindowId").toString());
-    //            click(menuToggleButton);
-    //            Thread.sleep(4000);
-    //            type(searchBarInLandingPage, "ASNs");
-    //            Thread.sleep(3000);
-    //            click(clickAsnSFromMenu);
-    //            Thread.sleep(3000);
-    //            type(filterAsnById, ScenarioContext.get("Created Asn ID").toString());
-    //            click(refresh);
-    //            Thread.sleep(2000);
-    //            report.addReportStepWithScreenshot(StepStatus.PASS, "Successfully Receiving Completed");
-    //
-    //        }
-    //        else {
-    //            System.out.println("Developing");
-    //        }
-    //
-    //
-    //
-    //    }
+    private final By confirmDifferentItemWarning =
+            By.xpath("//button[@data-component-id='popover_confirm']");
+
+
+    public void processWaveTasksInWmMobile(String waveNumber)
+            throws InterruptedException {
+
+        processWaveTasksInWmMobile(
+                waveNumber,
+                false,
+                true,
+                true,
+                true,
+                true
+        );
+    }
+
+
+    public void processWaveTasksInWmMobile(
+            String waveNumber,
+            boolean subtractOneFromQuantity,
+            boolean mandatoryOk,
+            boolean clickOptionalOkIfPresent,
+            boolean returnToTasksAfterEachTask,
+            boolean verifyCompletedAfterEachTask)
+            throws InterruptedException {
+        if (waveNumber == null || waveNumber.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Wave number cannot be null or empty"
+            );
+        }
+        Object taskObject =
+                ScenarioContext.get("Task Numbers - " + waveNumber);
+        if (!(taskObject instanceof List<?>)) {
+            throw new IllegalStateException(
+                    "Task numbers were not available in ScenarioContext for Wave: "
+                            + waveNumber
+            );
+        }
+        List<?> storedTasks = (List<?>) taskObject;
+        if (storedTasks.isEmpty()) {
+            throw new IllegalStateException(
+                    "No tasks were available for Wave: " + waveNumber
+            );
+        }
+        List<String> taskNumbers = new ArrayList<>();
+        for (Object task : storedTasks) {
+            if (task != null && !task.toString().isBlank()) {
+                taskNumbers.add(task.toString().trim());
+            }
+        }
+        if (taskNumbers.isEmpty()) {
+            throw new IllegalStateException(
+                    "No valid task IDs were available for Wave: " + waveNumber
+            );
+        }
+        System.out.println("========================================");
+        System.out.println("STARTING WM MOBILE TASK PROCESSING");
+        System.out.println("Wave Number: " + waveNumber);
+        System.out.println("Total Tasks: " + taskNumbers.size());
+        System.out.println("========================================");
+        for (int i = 0; i < taskNumbers.size(); i++) {
+            String taskId = taskNumbers.get(i);
+            System.out.println("----------------------------------------");
+            System.out.println(
+                    "Processing Task " + (i + 1)
+                            + " of " + taskNumbers.size()
+                            + ": " + taskId
+            );
+            System.out.println("----------------------------------------");
+            processSingleWaveTask(
+                    taskId,
+                    waveNumber,
+                    subtractOneFromQuantity,
+                    mandatoryOk,
+                    clickOptionalOkIfPresent,
+                    returnToTasksAfterEachTask,
+                    verifyCompletedAfterEachTask,
+                    false
+            );
+
+            report.addReportStepWithScreenshot(
+                    StepStatus.PASS,
+                    "Task completed successfully in WM Mobile: " + taskId
+            );
+        }
+
+        report.addReportStepWithScreenshot(
+                StepStatus.PASS,
+                "All " + taskNumbers.size()
+                        + " task(s) completed successfully for Wave: "
+                        + waveNumber
+        );
+
+        System.out.println("========================================");
+        System.out.println("WM MOBILE TASK PROCESSING COMPLETED");
+        System.out.println("Wave Number: " + waveNumber);
+        System.out.println("Total Tasks Completed: " + taskNumbers.size());
+        System.out.println("========================================");
+    }
+
+
+    public void processFirstWaveTaskWithQuantityAdjustment(
+            String waveNumber)
+            throws InterruptedException {
+
+        if (waveNumber == null || waveNumber.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Wave number cannot be null or empty"
+            );
+        }
+
+        Object taskObject =
+                ScenarioContext.get("Task Numbers - " + waveNumber);
+
+        if (!(taskObject instanceof List<?>)) {
+            throw new IllegalStateException(
+                    "Task numbers were not available in ScenarioContext for Wave: "
+                            + waveNumber
+            );
+        }
+
+        List<?> storedTasks = (List<?>) taskObject;
+
+        if (storedTasks.isEmpty()) {
+            throw new IllegalStateException(
+                    "No tasks were available for Wave: " + waveNumber
+            );
+        }
+
+        String taskId = storedTasks.get(0) == null
+                ? null
+                : storedTasks.get(0).toString().trim();
+
+        if (taskId == null || taskId.isBlank()) {
+            throw new IllegalStateException(
+                    "First task ID was empty for Wave: " + waveNumber
+            );
+        }
+
+        System.out.println(
+                "Processing first task with quantity - 1: "
+                        + taskId
+        );
+
+        processSingleWaveTask(
+                taskId,
+                waveNumber,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+        );
+    }
+
+
+    private void processSingleWaveTask(
+            String taskId,
+            String waveNumber,
+            boolean subtractOneFromQuantity,
+            boolean mandatoryOk,
+            boolean clickOptionalOkIfPresent,
+            boolean returnToTasksAfterEachTask,
+            boolean verifyCompletedAfterEachTask,
+            boolean e2eFullLpnPicking)
+            throws InterruptedException {
+
+        if (taskId == null || taskId.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Task ID cannot be null or empty"
+            );
+        }
+
+        String parentWindowId = driver.getWindowHandle();
+        ScenarioContext.set("parentWindowId", parentWindowId);
+
+        // =====================================================
+        // OPEN WM MOBILE
+        // =====================================================
+
+        click(menuToggleButton);
+        Thread.sleep(2000);
+
+        type(searchBarInLandingPage, "WM Mobile");
+        Thread.sleep(2000);
+
+        click(clickWmMobileFromMenu);
+        waitForPageLoad();
+        Thread.sleep(2000);
+        boolean childWindowFound = false;
+        for (String handle : driver.getWindowHandles()) {
+
+            if (!handle.equals(parentWindowId)) {
+                driver.switchTo().window(handle);
+                childWindowFound = true;
+                break;
+            }
+        }
+
+        if (!childWindowFound) {
+            throw new IllegalStateException(
+                    "WM Mobile child window was not opened for Task: "
+                            + taskId
+            );
+        }
+        try {
+            searchAndWaitForNextElement(searchBarInWmMobile,"Enter Task", enterTask);
+            Thread.sleep(2000);
+            click(driver.findElement(enterTask));
+            wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(taskInput)
+            );
+            WebElement taskInputElement =
+                    driver.findElement(taskInput);
+            type(taskInputElement, taskId);
+            waitForInputValueContains(
+                    taskInput,
+                    taskId
+            );
+            pressEnter(taskInputElement);
+            wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(tapToConfirm)
+            );
+            Thread.sleep(2000);
+            click(driver.findElement(tapToConfirm));
+            wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(acceptLocation)
+            );
+            WebElement acceptLocationElement =
+                    driver.findElement(acceptLocation);
+            String location = acceptLocationElement.getText();
+            if (location == null || location.isBlank()) {
+                throw new IllegalStateException(
+                        "Accept location was empty for Task: " + taskId
+                );
+            }
+            location = location.trim();
+
+            System.out.println(
+                    "Task " + taskId + " Location: " + location
+            );
+            wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(scanLocation)
+            );
+
+            WebElement scanLocationElement =
+                    driver.findElement(scanLocation);
+
+            type(scanLocationElement, location);
+
+            waitForInputValueContains(
+                    scanLocation,
+                    location
+            );
+
+            Thread.sleep(1000);
+
+            pressEnter(scanLocationElement);
+
+            if (e2eFullLpnPicking) {
+                // E2E path: this is a full-LPN pick. Enter 1 LPN and never
+                // run the short-pick / Pick Exception logic.
+                WebDriverWait e2eWait =
+                        new WebDriverWait(driver, Duration.ofSeconds(15));
+
+                WebElement needTextElement =
+                        e2eWait.until(
+                                ExpectedConditions.visibilityOfElementLocated(
+                                        e2eLpnNeedText));
+
+                String needText = needTextElement.getText();
+                if (needText == null || needText.isBlank()) {
+                    throw new IllegalStateException(
+                            "Need field text was empty for E2E task: " + taskId);
+                }
+
+                // Example UI text: "1 LPN". Extract only the numeric quantity.
+                java.util.regex.Matcher needMatcher =
+                        java.util.regex.Pattern.compile("(\\d+)")
+                                .matcher(needText.trim());
+
+                if (!needMatcher.find()) {
+                    throw new IllegalStateException(
+                            "Could not extract the required LPN quantity from Need text. "
+                                    + "Task: " + taskId
+                                    + " | Need text: " + needText);
+                }
+
+                String requiredLpnQuantity = needMatcher.group(1);
+
+                WebElement quantityElement =
+                        e2eWait.until(
+                                ExpectedConditions.visibilityOfElementLocated(
+                                        e2eQuantityInput));
+
+                if (!quantityElement.isEnabled()) {
+                    throw new IllegalStateException(
+                            "LPN quantity input is disabled for Task: " + taskId);
+                }
+
+                type(quantityElement, requiredLpnQuantity);
+
+                // Wait for the exact value and then validate it before Enter.
+                e2eWait.until(driver -> {
+                    String value = driver.findElement(e2eQuantityInput)
+                            .getAttribute("value");
+                    return requiredLpnQuantity.equals(value == null ? null : value.trim());
+                });
+
+                String enteredQuantity = quantityElement.getAttribute("value");
+                if (enteredQuantity == null
+                        || !enteredQuantity.trim().equals(requiredLpnQuantity)) {
+                    throw new IllegalStateException(
+                            "LPN quantity validation failed. Expected: "
+                                    + requiredLpnQuantity
+                                    + " | Actual: " + enteredQuantity
+                                    + " | Task: " + taskId);
+                }
+
+                System.out.println(
+                        "E2E full-LPN pick | Task: " + taskId
+                                + " | Need text: " + needText
+                                + " | Extracted quantity: " + requiredLpnQuantity
+                                + " | Entered quantity: " + enteredQuantity);
+
+                pressEnter(quantityElement);
+
+            } else {
+                // Existing standard unit-picking and quantity-adjustment flow.
+                wait.until(
+                        ExpectedConditions.visibilityOfElementLocated(quantityInput)
+                );
+                wait.until(
+                        ExpectedConditions.visibilityOfElementLocated(unitText)
+                );
+
+                String unitDisplay =
+                        driver.findElement(unitText).getText();
+
+                String displayedQuantity =
+                        extractUnitQuantity(unitDisplay);
+
+                int displayedQuantityValue =
+                        Integer.parseInt(displayedQuantity);
+
+                int quantityToEnterValue =
+                        subtractOneFromQuantity
+                                ? displayedQuantityValue - 1
+                                : displayedQuantityValue;
+
+                if (quantityToEnterValue <= 0) {
+                    throw new IllegalStateException(
+                            "Quantity after adjustment must be greater than zero. "
+                                    + "Task: " + taskId
+                                    + " | Displayed: " + displayedQuantityValue
+                                    + " | Adjustment: "
+                                    + (subtractOneFromQuantity ? "-1" : "none")
+                    );
+                }
+
+                String quantityToEnter =
+                        String.valueOf(quantityToEnterValue);
+
+                System.out.println(
+                        "Task " + taskId
+                                + " Unit Display: " + unitDisplay
+                                + " | Displayed Quantity: " + displayedQuantity
+                                + " | Entering Quantity: " + quantityToEnter
+                );
+
+                WebElement quantityElement =
+                        driver.findElement(quantityInput);
+
+                type(quantityElement, quantityToEnter);
+
+                waitForInputValueContains(
+                        quantityInput,
+                        quantityToEnter
+                );
+
+                pressEnter(quantityElement);
+
+                if (subtractOneFromQuantity) {
+                    handlePriorityTenPlusPickException();
+                }
+            }
+            if (mandatoryOk) {
+
+                wait.until(
+                        ExpectedConditions.visibilityOfElementLocated(okButton)
+                );
+
+                click(driver.findElement(okButton));
+
+            } else if (clickOptionalOkIfPresent) {
+
+                clickOptionalOkButton();
+            }
+
+            System.out.println(
+                    "Task WM quantity processing completed: " + taskId
+            );
+
+        } finally {
+            if (driver.getWindowHandle().equals(parentWindowId)) {
+                throw new IllegalStateException(
+                        "WM Mobile window was closed or focus changed unexpectedly "
+                                + "while processing Task: " + taskId
+                );
+            }
+
+            driver.close();
+            driver.switchTo().window(parentWindowId);
+
+            Thread.sleep(2000);
+        }
+        if (returnToTasksAfterEachTask) {
+            // The parent window is already on the Tasks page after the WM
+            // Mobile child window is closed. Do not navigate through Menu
+            // Toggle -> Wave Runs -> filter -> Related Links -> Tasks again.
+            WavesPage wavesPage = new WavesPage();
+            wavesPage.refreshTasksPage();
+
+            if (verifyCompletedAfterEachTask) {
+                refreshTasksAndVerifyCompleted(taskId);
+            }
+        }
+    }
+
+
+    private void handlePriorityTenPlusPickException()
+            throws InterruptedException {
+
+        WebDriverWait exceptionWait =
+                new WebDriverWait(
+                        driver,
+                        Duration.ofSeconds(5)
+                );
+
+        Thread.sleep(2000);
+        click(pickExceptionButton);
+        // The application can render Unpicked after the Pick Exception click.
+        isDisplayed(unpickedMessage);
+        Thread.sleep(2000);
+        click(pickExceptionConfirmButton);
+        System.out.println(
+                "Pick Exception -> Unpicked -> Confirm completed."
+        );
+        Thread.sleep(1500);
+    }
+
+
+    private void clickOptionalOkButton()
+            throws InterruptedException {
+
+        WebDriverWait optionalWait =
+                new WebDriverWait(
+                        driver,
+                        Duration.ofSeconds(5)
+                );
+
+        try {
+            WebElement ok =
+                    optionalWait.until(d -> {
+                        List<WebElement> elements =
+                                d.findElements(okButton);
+
+                        for (WebElement element : elements) {
+                            try {
+                                if (element.isDisplayed()
+                                        && element.isEnabled()) {
+                                    return element;
+                                }
+                            } catch (Exception ignored) {
+                                // DOM refresh.
+                            }
+                        }
+
+                        return null;
+                    });
+
+            click(ok);
+            System.out.println(
+                    "Optional Ok button displayed and clicked."
+            );
+
+        } catch (TimeoutException e) {
+            System.out.println(
+                    "Optional Ok button was not displayed. Continuing."
+            );
+        }
+    }
+
+
+    /**
+     * Handles the optional inbound putaway warning shown after scanning a location.
+     *
+     * If the warning is displayed, click Confirm. If it is not displayed,
+     * continue immediately without failing the putaway flow.
+     */
+    private void handleDifferentItemDedicatedWarning() {
+
+        WebDriverWait optionalWait = new WebDriverWait(driver, Duration.ofSeconds(3));
+
+        try {
+            WebElement warning = optionalWait.until(driver -> {
+                List<WebElement> elements =
+                        driver.findElements(differentItemDedicatedWarning);
+
+                for (WebElement element : elements) {
+                    try {
+                        if (element.isDisplayed()) {
+                            return element;
+                        }
+                    } catch (Exception ignored) {
+                        // DOM can refresh while WM Mobile is processing the location.
+                    }
+                }
+
+                return null;
+            });
+
+            if (warning != null) {
+                System.out.println(
+                        "Inbound Putaway warning detected: "
+                                + "permanently dedicated to a different item"
+                );
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+                WebElement confirmButton = optionalWait.until(driver -> {
+                    List<WebElement> elements =
+                            driver.findElements(confirmDifferentItemWarning);
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    for (WebElement element : elements) {
+                        try {
+                            if (element.isDisplayed() && element.isEnabled()) {
+                                return element;
+                            }
+                        } catch (Exception ignored) {
+                            // DOM can refresh while the confirmation dialog is rendered.
+                        }
+                    }
+
+                    return null;
+                });
+
+                click(confirmButton);
+
+                System.out.println(
+                        "Confirmed inbound Putaway warning and continuing."
+                );
+            }
+
+        } catch (org.openqa.selenium.TimeoutException e) {
+            // Warning is optional. If it does not appear within the short window,
+            // continue with the normal putaway flow.
+            System.out.println(
+                    "No inbound Putaway dedicated-item warning detected. Continuing."
+            );
+        }
+    }
+
+    private void waitForInputValueContains(
+            By locator,
+            String expectedValue) {
+
+        wait.until(driver -> {
+
+            try {
+                WebElement element = driver.findElement(locator);
+                String actualValue = element.getAttribute("value");
+
+                return actualValue != null
+                        && actualValue.contains(expectedValue);
+
+            } catch (Exception e) {
+                return false;
+            }
+        });
+    }
+
+
+    private String extractUnitQuantity(String unitDisplay) {
+
+        if (unitDisplay == null || unitDisplay.isBlank()) {
+            throw new IllegalStateException(
+                    "Unit display text was empty"
+            );
+        }
+
+        java.util.regex.Matcher matcher =
+                java.util.regex.Pattern.compile(
+                        "(\\d+)\\s*UNIT",
+                        java.util.regex.Pattern.CASE_INSENSITIVE
+                ).matcher(unitDisplay.trim());
+
+        if (!matcher.find()) {
+            throw new IllegalStateException(
+                    "Unable to extract quantity from unit display: "
+                            + unitDisplay
+            );
+        }
+
+        return matcher.group(1);
+    }
+
+
+    private void refreshTasksAndVerifyCompleted(String taskId)
+            throws InterruptedException {
+
+        Thread.sleep(1000);
+        By taskElementLocator = By.xpath(
+                "//span[@data-component-id='TaskId' and normalize-space()='"
+                        + taskId
+                        + "']"
+        );
+
+        wait.until(
+                ExpectedConditions.visibilityOfElementLocated(taskElementLocator)
+        );
+
+        WebElement taskElement =
+                driver.findElement(taskElementLocator);
+        By taskCardLocator = By.xpath(
+                "//span[@data-component-id='TaskId' and normalize-space()='"
+                        + taskId
+                        + "']/ancestor::*[.//*[normalize-space()='Completed']][1]"
+        );
+
+        wait.until(
+                ExpectedConditions.visibilityOfElementLocated(taskCardLocator)
+        );
+
+        WebElement taskCard =
+                driver.findElement(taskCardLocator);
+
+        String cardText = taskCard.getText();
+
+        if (cardText == null
+                || !cardText.toLowerCase().contains("completed")) {
+
+            throw new IllegalStateException(
+                    "Task was not completed after WM Mobile processing. "
+                            + "Task: " + taskId
+                            + " | Card: " + cardText
+            );
+        }
+
+        System.out.println(
+                "Verified Completed status for Task: " + taskId
+        );
+    }
+
+
     public void userCompletes(String transaction) throws InterruptedException {
-
-        // =========================================================
-        // SCENARIO CONTEXT
-        // =========================================================
-
         System.out.println("========== SCENARIO CONTEXT ==========");
-
         ScenarioContext.printAll();
-
         System.out.println("======================================");
         if (transaction.equalsIgnoreCase("ReceiveByUnit")) {
-
             receiveByUnitEachLpn();
-
             return;
         }
         else if (transaction.equalsIgnoreCase("Putaway")) {
-
             performPutaway();
-
             return;
         }
-
-
-        // =========================================================
-        // LPN LEVEL ASN RECEIVING
-        //
-        // No Item
-        // No Quantity
-        //
-        // Flow:
-        //
-        // ASN 1
-        //   -> LPN 1
-        //   -> LPN 2
-        //   -> Verification
-        //
-        // ASN 2
-        //   -> LPN 3
-        //   -> LPN 4
-        //   -> Verification
-        //
-        // IMPORTANT:
-        // LPNs are taken directly from ASNData.
-        // We DO NOT use:
-        // "Created LPN Level ILPN 1"
-        // "Created LPN Level ILPN 2"
-        // etc.
-        // =========================================================
-
         if (transaction.equalsIgnoreCase("LPNReceiving")) {
-
-            // =====================================================
-            // GET ALL CREATED ASN DATA
-            // =====================================================
-
             @SuppressWarnings("unchecked") List<ASNData> createdASNData = (List<ASNData>) ScenarioContext.get("CreatedASNData");
-
-
             if (createdASNData == null || createdASNData.isEmpty()) {
-
                 throw new IllegalStateException("No Created LPN Level ASN data found in ScenarioContext");
             }
-
-
             System.out.println("========================================");
-
             System.out.println("STARTING LPN LEVEL ASN RECEIVING");
-
             System.out.println("Total ASNs: " + createdASNData.size());
-
             System.out.println("========================================");
-
-
-            // =====================================================
-            // PROCESS EACH ASN
-            // =====================================================
-
             for (ASNData asnData : createdASNData) {
-
-                // =================================================
-                // GET ASN ID
-                // =================================================
-
                 String asnId = asnData.getAsn();
-
-
-                // =================================================
-                // GET LPNs BELONGING TO THIS ASN
-                // =================================================
-
                 List<ILPNData> ilpns = asnData.getIlpns();
-
-
-                // =================================================
-                // VALIDATE ASN
-                // =================================================
-
                 if (asnId == null || asnId.isBlank()) {
 
                     throw new IllegalStateException("ASN ID is null or empty in ASNData");
                 }
-
-
-                // =================================================
-                // VALIDATE LPNs
-                // =================================================
-
                 if (ilpns == null || ilpns.isEmpty()) {
 
                     throw new IllegalStateException("No ILPNs found for ASN: " + asnId);
                 }
-
-
                 System.out.println("========================================");
 
                 System.out.println("Processing LPN Level ASN: " + asnId);
@@ -337,122 +899,32 @@ public class MUPPage extends BasePage {
                         break;
                     }
                 }
-
-
                 Thread.sleep(3000);
-
-
-                // =================================================
-                // OPEN 190 RECEIVING
-                // =================================================
-
-                type(searchBarInWmMobile, "190 Receiving");
-
+                searchAndWaitForNextElement(searchBarInWmMobile,"190 Receiving", click190Receiving);
                 report.addReportStepWithScreenshot(StepStatus.PASS, "User Searched for 190 Receiving");
                 Thread.sleep(3000);
-
-
                 click(click190Receiving);
-
-
                 Thread.sleep(2000);
                 report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered 190 Receiving Transaction");
-
-
-                // =================================================
-                // PASS ASN
-                //
-                // ASN IS ENTERED ONLY ONCE
-                // =================================================
-
                 type(passAsnIdReceive, asnId);
-
-
                 pressEnter(passAsnIdReceive);
-
                 report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered ASN ID: " + asnId + " in 190 Receiving Transaction");
-
-                //                Thread.sleep(7000);
                 Thread.sleep(2000);
-
-
-                // =================================================
-                // PASS EACH EXISTING LPN
-                //
-                // IMPORTANT:
-                //
-                // We get the LPN directly from:
-                //
-                // asnData
-                //    -> ilpns
-                //       -> ilpnData
-                //          -> getIlpn()
-                //
-                // This prevents LPN overlap between ASNs.
-                // =================================================
-
                 for (int i = 0; i < ilpns.size(); i++) {
-
                     ILPNData ilpnData = ilpns.get(i);
-
-
-                    // =================================================
-                    // GET EXACT LPN FOR CURRENT ASN
-                    // =================================================
-
                     String lpnId = ilpnData.getIlpn();
-
-
-                    // =================================================
-                    // VALIDATE LPN
-                    // =================================================
-
                     if (lpnId == null || lpnId.isBlank()) {
-
                         throw new IllegalStateException("LPN ID is null or empty for ASN: " + asnId + ", LPN index: " + (i + 1));
                     }
-
-
                     System.out.println("----------------------------------------");
-
                     System.out.println("ASN: " + asnId + " | Processing LPN " + (i + 1) + " of " + ilpns.size() + ": " + lpnId);
-
                     System.out.println("----------------------------------------");
-
-
-                    // =================================================
-                    // PASS EXISTING LPN
-                    //
-                    // DO NOT PRESS ENTER AUTOMATICALLY FOR LPN
-                    // CREATION.
-                    //
-                    // We are passing the LPN already created
-                    // by the LPN Level ASN API.
-                    // =================================================
-
                     type(passLpnIdReceive, lpnId);
-
-
-                    // =================================================
-                    // PRESS ENTER FOR EXISTING LPN
-                    // =================================================
-
                     pressEnter(passLpnIdReceive);
-
-
-                    //                    Thread.sleep(5000);
-                    //                    Thread.sleep(2000);
-
                     System.out.println("Completed LPN Receiving: " + lpnId + " for ASN: " + asnId);
                     report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered Lpn: " + lpnId);
 
                 }
-
-
-                // =====================================================
-                // ASN RECEIVING COMPLETED
-                // =====================================================
-
                 System.out.println("========================================");
 
                 System.out.println("LPN LEVEL ASN RECEIVING COMPLETED");
@@ -462,158 +934,49 @@ public class MUPPage extends BasePage {
                 System.out.println("Total LPNs Received: " + ilpns.size());
 
                 System.out.println("========================================");
-
-
-                // =====================================================
-                // CLOSE WM MOBILE
-                // =====================================================
-
                 driver.close();
-
-
                 driver.switchTo().window(parentWindowId);
-
-
                 System.out.println("Returned to parent window after ASN: " + asnId);
-
-
-                // =====================================================
-                // SAME VERIFICATION PROCESS
-                // =====================================================
-
                 click(menuToggleButton);
-
                 Thread.sleep(4000);
-
-
                 type(searchBarInLandingPage, "ASNs");
-
                 Thread.sleep(3000);
-
-
                 click(clickAsnSFromMenu);
-
-                //                Thread.sleep(5000);
                 Thread.sleep(2000);
-
-                // =====================================================
-                // FILTER CURRENT ASN
-                // =====================================================
-
                 type(filterAsnById, asnId);
-
-
                 Thread.sleep(3000);
-
-
                 pressEnter(filterAsnById);
-
-
                 click(refresh);
-
-
                 Thread.sleep(3000);
-
                 click(refresh);
-
-
-                // =====================================================
-                // VERIFY CURRENT ASN
-                // =====================================================
-
                 AsnPage asnPage = new AsnPage();
-
-
                 asnPage.verifyASN(asnId);
-
-
                 System.out.println("ASN Verification Completed: " + asnId);
             }
-
-
-            // =====================================================
-            // ALL LPN LEVEL ASNs COMPLETED
-            // =====================================================
-
             System.out.println("========================================");
-
             System.out.println("ALL LPN LEVEL ASN RECEIVING COMPLETED");
-
             System.out.println("Total ASNs Received: " + createdASNData.size());
-
             System.out.println("========================================");
-
-
-            report.addReportStepWithScreenshot(StepStatus.PASS, "Successfully completed LPN Level ASN Receiving");
-
-
+            report.addReportStepWithoutScreenshot(StepStatus.PASS, "Successfully completed LPN Level ASN Receiving");
             return;
         }
-
-
-        // =========================================================
-        // EXISTING RECEIVING FLOW
-        //
-        // This remains unchanged.
-        //
-        // Used for:
-        //
-        // Receiving
-        // Receive-Mixed
-        // ReceiveByPallet
-        // =========================================================
-
         @SuppressWarnings("unchecked") List<ASNData> createdASNData = (List<ASNData>) ScenarioContext.get("CreatedASNData");
-
-
         if (createdASNData == null || createdASNData.isEmpty()) {
-
             throw new IllegalStateException("No Created ASN data found in ScenarioContext");
         }
-
-
         System.out.println("Total ASNs to Receive: " + createdASNData.size());
-
-
-        // =========================================================
-        // PROCESS EACH ASN
-        // =========================================================
-
         for (ASNData asnData : createdASNData) {
-
             String asnId = asnData.getAsn();
-
-
             List<ItemData> items = asnData.getItems();
-
-
             System.out.println("======================================");
-
             System.out.println("Starting Receiving for ASN: " + asnId);
-
             System.out.println("Total Line Items: " + items.size());
-
             System.out.println("======================================");
-
-
-            // =====================================================
-            // OPEN WM MOBILE
-            // =====================================================
-
             click(menuToggleButton);
-
             Thread.sleep(4000);
-
-
             type(searchBarInLandingPage, "WM Mobile");
-
-
             String parentWindowId = driver.getWindowHandle();
-
-
             ScenarioContext.set("parentWindowId", parentWindowId);
-
-
             click(clickWmMobileFromMenu);
 
 
@@ -631,557 +994,169 @@ public class MUPPage extends BasePage {
                     break;
                 }
             }
-
-
             Thread.sleep(3000);
-
-
-            // =====================================================
-            // SELECT RECEIVING TRANSACTION
-            // =====================================================
-
             if (transaction.equalsIgnoreCase("ReceiveByPallet")) {
-
-                type(searchBarInWmMobile, "190 ReceiveByPallet");
-
-
+                searchAndWaitForNextElement(searchBarInWmMobile,"190 ReceiveByPallet", clickReceiveByPallet);
                 Thread.sleep(3000);
-
-
                 click(clickReceiveByPallet);
-
                 report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered Receive By Pallet Transaction");
-
                 Thread.sleep(2000);
-
             } else {
-
-                type(searchBarInWmMobile, "190 Receiving");
-
-
-                //                Thread.sleep(3000);
-
-
+                searchAndWaitForNextElement(searchBarInWmMobile,"190 Receiving", click190Receiving);
                 click(click190Receiving);
                 report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered 190 Receiving Transaction");
-
-
                 Thread.sleep(2000);
             }
-
-
-            // =====================================================
-            // ENTER ASN
-            // =====================================================
-
             type(passAsnIdReceive, asnId);
-
-
             pressEnter(passAsnIdReceive);
             report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered Asn Id " + asnId);
-
-
-            //            Thread.sleep(7000);
-            Thread.sleep(3000);
-
-            // =====================================================
-            // PALLET FLOW
-            // =====================================================
             if (transaction.equalsIgnoreCase("ReceiveByPallet")) {
-
-                // =====================================================
-                // AUTO-GENERATE PALLET
-                // =====================================================
-
                 pressEnter(scanPallet);
-
                 Thread.sleep(3000);
-
-
-                // =====================================================
-                // FETCH GENERATED PALLET ID
-                // =====================================================
-
                 String palletId = getPallet.getText();
-
                 if (palletId == null || palletId.isBlank()) {
-
                     throw new IllegalStateException("Pallet ID could not be fetched after pallet generation");
                 }
-
-
-                // =====================================================
-                // STORE PALLET ID
-                // =====================================================
-
                 ScenarioContext.set("CreatedPalletId", palletId);
-
-
-                // =====================================================
-                // LOG PALLET ID
-                // =====================================================
-
                 System.out.println("Generated Pallet ID: " + palletId);
-
                 System.out.println("Stored CreatedPalletId in ScenarioContext: " + ScenarioContext.get("CreatedPalletId"));
                 report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered Pallet Id" + palletId);
-
             }
-
-
-            // =====================================================
-            // CHECK MIXED
-            // =====================================================
-
             boolean isMixed = transaction.toLowerCase().contains("mixed");
-
-
             System.out.println("Transaction: " + transaction);
-
-
             System.out.println("Mixed ILPN: " + isMixed);
-
-
             String currentLpnId = null;
-
-
             ILPNData currentIlpnData = null;
-
-
-            // =====================================================
-            // PROCESS ITEMS
-            // =====================================================
-
             for (ItemData itemData : items) {
-
                 String item = itemData.getItem();
-
-
                 String quantity = itemData.getShippedQty();
-
-
                 System.out.println("--------------------------------------");
-
-
                 System.out.println("Processing Item: " + item + " | Quantity: " + quantity);
-
-
                 System.out.println("--------------------------------------");
-
-
-                // =================================================
-                // CREATE / SELECT ILPN
-                // =================================================
-
                 if (!isMixed || currentLpnId == null) {
-
-
-                    // =============================================
-                    // AUTO-GENERATE LPN
-                    // =============================================
-
                     pressEnter(passLpnIdReceive);
-
-
-                    //                    Thread.sleep(5000);
                     Thread.sleep(2000);
-
                     currentLpnId = storeLpnIdFromWm.getText();
-
-
                     System.out.println("Created ILPN/LPN: " + currentLpnId);
-
-
-                    // =============================================
-                    // CREATE ILPN DATA
-                    // =============================================
-
                     currentIlpnData = new ILPNData(currentLpnId);
-
-
                     asnData.addIlpn(currentIlpnData);
-
-
                     report.addReportStepWithScreenshot(StepStatus.PASS, "LPN ID from WM Mobile: " + currentLpnId + " for Item: " + item);
                 }
-
-
-                // =================================================
-                // ADD ITEM TO ILPN
-                // =================================================
-
                 currentIlpnData.addItem(itemData);
-
-
-                // =================================================
-                // ENTER ITEM
-                // =================================================
-
                 type(passItemReceive, item);
-
-
                 pressEnter(passItemReceive);
-
-                report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered Item " + item);
-
-
                 Thread.sleep(4000);
-
-
-                // =================================================
-                // ENTER QUANTITY
-                // =================================================
-
                 type(passQtyReceive, quantity);
-
-
                 Thread.sleep(2000);
-
-
                 pressEnter(passQtyReceive);
-
-
                 Thread.sleep(3000);
                 report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered quantity to receive " + quantity);
-
-
-                // =================================================
-                // END CURRENT ILPN
-                // =================================================
-
                 if (!isMixed) {
-
                     click(endLPNReceive);
-
-
                     Thread.sleep(3000);
-
-
                     System.out.println("Completed ILPN: " + currentLpnId + " for Item: " + item);
-
-
                     currentLpnId = null;
-
-
                     currentIlpnData = null;
                 }
             }
-
-
-            // =====================================================
-            // MIXED TRANSACTION
-            // =====================================================
-
             if (isMixed) {
-
                 click(endLPNReceive);
-
-
-                //                Thread.sleep(3000);
                 Thread.sleep(2000);
-
                 System.out.println("Completed Mixed ILPN: " + currentLpnId + " containing " + items.size() + " items");
             }
-
-
-            // =====================================================
-            // END PALLET
-            // =====================================================
-
             if (transaction.equalsIgnoreCase("ReceiveByPallet")) {
-
                 Thread.sleep(2000);
-
-
                 click(endPallet);
             }
-
-
-            // =====================================================
-            // CURRENT ASN COMPLETED
-            // =====================================================
-
             System.out.println("Completed Receiving for ASN: " + asnId);
-
-
-            // =====================================================
-            // CLOSE WM MOBILE
-            // =====================================================
-
             driver.close();
-
-
             driver.switchTo().window(parentWindowId);
-
-
             System.out.println("Returned to parent window after ASN: " + asnId);
-
-
-            // =====================================================
-            // OPEN ASNs UI
-            // =====================================================
-
             click(menuToggleButton);
-
-
-            //            Thread.sleep(4000);
-
-
             type(searchBarInLandingPage, "ASNs");
-
-
             Thread.sleep(3000);
-
-
             click(clickAsnSFromMenu);
-
-
             Thread.sleep(3000);
-
-
-            // =====================================================
-            // FILTER CURRENT ASN
-            // =====================================================
-
             type(filterAsnById, asnId);
-
-
             Thread.sleep(3000);
-
-
             pressEnter(filterAsnById);
-
-
             click(refresh);
-
             waitForStatus(asnStatusValidation,
                     ()->click(refresh),
                     "In Receiving");
-
-
-            //            Thread.sleep(3000);
-
-
-            // =====================================================
-            // VERIFY CURRENT ASN
-            // =====================================================
-
             AsnPage asnPage = new AsnPage();
-
-
             asnPage.verifyASN(asnId);
         }
-
-
-        // =========================================================
-        // FINAL MESSAGE
-        // =========================================================
-
-        System.out.println("======================================");
-
-
         System.out.println("ALL ASN RECEIVING COMPLETED");
-
-
-        System.out.println("======================================");
-
-
-        report.addReportStepWithScreenshot(StepStatus.PASS, "Successfully Receiving Completed");
     }
 
     public void putaway() throws InterruptedException {
-
         @SuppressWarnings("unchecked") List<ASNData> createdASNData = (List<ASNData>) ScenarioContext.get("CreatedASNData");
-
         if (createdASNData == null || createdASNData.isEmpty()) {
-
             throw new IllegalStateException("No Created ASN data found in ScenarioContext");
         }
-
         System.out.println("Total ASNs for Putaway: " + createdASNData.size());
-
         LocationDetails locationDetails = new LocationDetails();
-
         for (ASNData asnData : createdASNData) {
-
             String asnId = asnData.getAsn();
-
             System.out.println("======================================");
-
             System.out.println("Starting Putaway for ASN: " + asnId);
-
             System.out.println("======================================");
-
             for (ILPNData ilpnData : asnData.getIlpns()) {
-
                 String ilpn = ilpnData.getIlpn();
-
                 System.out.println("Processing ILPN: " + ilpn);
-
-                // =================================================
-                // GET LOCATION ONCE FOR THIS ILPN
-                // =================================================
-
                 String location = locationDetails.getNextActiveLocation();
-
                 if (location == null || location.isBlank()) {
-
                     throw new IllegalStateException("No active location available for ILPN: " + ilpn);
                 }
-
-                // =================================================
-                // STORE EXPECTED LOCATION
-                // =================================================
-
                 storeIlpnLocation(ilpn, location);
-
-                // =================================================
-                // PROCESS ALL ITEMS OF THIS ILPN
-                // =================================================
-
                 for (ItemData itemData : ilpnData.getItems()) {
-
                     String item = itemData.getItem();
-
                     String quantity = itemData.getShippedQty();
-
-                    System.out.println("--------------------------------------");
-
                     System.out.println("ILPN: " + ilpn + " | Item: " + item + " | Qty: " + quantity + " | Location: " + location);
-
                     System.out.println("--------------------------------------");
-
-                    // =================================================
-                    // YOUR EXISTING WM MOBILE FLOW
-                    // =================================================
-
                     click(menuToggleButton);
-
                     Thread.sleep(4000);
-
                     type(searchBarInLandingPage, "WM Mobile");
-
                     String parentWindowId = driver.getWindowHandle();
-
                     ScenarioContext.set("parentWindowId", parentWindowId);
-
                     click(clickWmMobileFromMenu);
-
                     waitForPageLoad();
-
                     Thread.sleep(5000);
-
                     for (String handle : driver.getWindowHandles()) {
-
                         if (!handle.equals(parentWindowId)) {
-
                             driver.switchTo().window(handle);
-
                             break;
                         }
                     }
-
                     Thread.sleep(5000);
-
-                    type(searchBarInWmMobile, "190 User Directed");
-
-                    Thread.sleep(3000);
-
+                    searchAndWaitForNextElement(searchBarInWmMobile, "190 User Directed", clickUD);
+                    Thread.sleep(2000);
                     click(clickUD);
-
-                    //                    Thread.sleep(4000);
-                    Thread.sleep(2000);
-
                     report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered 190 User Directed Transaction");
-
-                    // =================================================
-                    // SCAN ILPN
-                    // =================================================
-
                     type(scanContainer, ilpn);
-
-                    //                    Thread.sleep(2000);
-
                     pressEnter(scanContainer);
-
-                    //                    Thread.sleep(3000);
-                    //                    Thread.sleep(2000);
-                    // =================================================
-                    // SCAN ITEM
-                    // =================================================
-
                     type(scanItemUD, item);
-
-                    //                    Thread.sleep(2000);
-
                     pressEnter(scanItemUD);
-
-                    //                    Thread.sleep(3000);
-                    //                    Thread.sleep(2000);
-                    // =================================================
-                    // SCAN QUANTITY
-                    // =================================================
-
                     type(scanQtyUD, quantity);
-
-                    //                    Thread.sleep(2000);
-
                     pressEnter(scanQtyUD);
-
-                    //                    Thread.sleep(3000);
-
-                    // =================================================
-                    // SCAN LOCATION
-                    // =================================================
-
                     type(scanLocUD, location);
-
                     Thread.sleep(2000);
-
                     pressEnter(scanLocUD);
-
                     Thread.sleep(10000);
-
-                    // =================================================
-                    // CLOSE WM MOBILE
-                    // =================================================
-
+                    handleDifferentItemDedicatedWarning();
                     driver.close();
-
                     driver.switchTo().window(parentWindowId);
-
                     System.out.println("Putaway completed for ILPN: " + ilpn + " | Item: " + item + " | Location: " + location);
-
                     report.addReportStepWithScreenshot(StepStatus.PASS, "Putaway completed for ILPN: " + ilpn + " | Item: " + item + " | Qty: " + quantity + " | Location: " + location);
                 }
-
-                // =====================================================
-                // IMPORTANT:
-                // Do NOT validate here for every ITEM.
-                // We validate ILPNs together after LPN Inventory opens.
-                // =====================================================
             }
-
-            // =====================================================
-            // OPEN ASN UI
-            // =====================================================
-
             click(menuToggleButton);
-
             Thread.sleep(4000);
-
             type(searchBarInLandingPage, "ASNs");
-
             Thread.sleep(3000);
-
             click(clickAsnSFromMenu);
-
             Thread.sleep(5000);
-
-            // =====================================================
-            // FILTER ASN
-            // =====================================================
-
             type(filterAsnById, asnId);
 
             Thread.sleep(3000);
@@ -1231,13 +1206,20 @@ public class MUPPage extends BasePage {
 
     public void systemDirectedPutaway() throws InterruptedException {
 
-        @SuppressWarnings("unchecked") List<ASNData> createdASNData = (List<ASNData>) ScenarioContext.get("CreatedASNData");
+        @SuppressWarnings("unchecked")
+        List<ASNData> createdASNData =
+                (List<ASNData>) ScenarioContext.get("CreatedASNData");
 
         if (createdASNData == null || createdASNData.isEmpty()) {
-            throw new IllegalStateException("No Created ASN data found in ScenarioContext");
+            throw new IllegalStateException(
+                    "No Created ASN data found in ScenarioContext"
+            );
         }
 
-        System.out.println("Total ASNs for System Directed Putaway: " + createdASNData.size());
+        System.out.println(
+                "Total ASNs for System Directed Putaway: "
+                        + createdASNData.size()
+        );
 
         // =========================================================
         // LOOP THROUGH ALL ASNs
@@ -1248,7 +1230,9 @@ public class MUPPage extends BasePage {
             String asnId = asnData.getAsn();
 
             System.out.println("======================================");
-            System.out.println("Starting System Directed Putaway for ASN: " + asnId);
+            System.out.println(
+                    "Starting System Directed Putaway for ASN: " + asnId
+            );
             System.out.println("======================================");
 
 
@@ -1263,7 +1247,9 @@ public class MUPPage extends BasePage {
                 System.out.println("Processing ILPN: " + ilpn);
 
                 System.out.println("--------------------------------------");
-                System.out.println("ILPN: " + ilpn + " | ASN: " + asnId);
+                System.out.println(
+                        "ILPN: " + ilpn + " | ASN: " + asnId
+                );
                 System.out.println("--------------------------------------");
 
 
@@ -1273,7 +1259,10 @@ public class MUPPage extends BasePage {
 
                 String parentWindowId = driver.getWindowHandle();
 
-                ScenarioContext.set("parentWindowId", parentWindowId);
+                ScenarioContext.set(
+                        "parentWindowId",
+                        parentWindowId
+                );
 
 
                 // =================================================
@@ -1284,7 +1273,10 @@ public class MUPPage extends BasePage {
 
                 Thread.sleep(4000);
 
-                type(searchBarInLandingPage, "WM Mobile");
+                type(
+                        searchBarInLandingPage,
+                        "WM Mobile"
+                );
 
                 Thread.sleep(3000);
 
@@ -1316,62 +1308,105 @@ public class MUPPage extends BasePage {
                 // OPEN 190 SYSTEM DIRECTED
                 // =================================================
 
-                type(searchBarInWmMobile, "190 System Directed");
-
-                Thread.sleep(3000);
-
-                click(click190SD);
+//                type(
+//                        searchBarInWmMobile,
+//                        "190 System Directed"
+//                );
+//
+//                Thread.sleep(3000);
+//
+//                click(click190SD);
+                searchAndWaitForNextElement(searchBarInWmMobile, "190 System Directed", click190SD);
 
                 Thread.sleep(4000);
-                report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered 190 System Directed Transaction");
+                click(click190SD);
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "User Entered 190 System Directed Transaction"
+                );
 
 
                 // =================================================
                 // SCAN ILPN / CONTAINER
                 // =================================================
 
-                type(scanContainer, ilpn);
+                type(
+                        scanContainer,
+                        ilpn
+                );
 
                 Thread.sleep(2000);
 
                 pressEnter(scanContainer);
-                report.addReportStepWithScreenshot(StepStatus.PASS, "User Scanned the ILPN " + ilpn + " in 190 System Directed Transaction");
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "User Scanned the ILPN "
+                                + ilpn
+                                + " in 190 System Directed Transaction"
+                );
 
 
                 // =================================================
                 // WAIT FOR SYSTEM DIRECTED LOCATION
                 // =================================================
 
-                By systemDirectedLocationLocator = By.xpath("//ion-col[@data-component-id='acceptlocationforsystemdirectedputaway_barcodetextfield_location']");
+                By systemDirectedLocationLocator =
+                        By.xpath(
+                                "//ion-col[@data-component-id='acceptlocationforsystemdirectedputaway_barcodetextfield_location']"
+                        );
 
-                WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+                WebDriverWait wait =
+                        new WebDriverWait(
+                                driver,
+                                Duration.ofSeconds(15)
+                        );
 
 
                 // =================================================
                 // WAIT UNTIL LOCATION ELEMENT APPEARS
                 // =================================================
 
-                WebElement systemDirectedLocation = wait.until(ExpectedConditions.visibilityOfElementLocated(systemDirectedLocationLocator));
+                WebElement systemDirectedLocation =
+                        wait.until(
+                                ExpectedConditions.visibilityOfElementLocated(
+                                        systemDirectedLocationLocator
+                                )
+                        );
 
 
                 // =================================================
                 // WAIT UNTIL LOCATION TEXT IS AVAILABLE
                 // =================================================
 
-                String location = wait.until(driver -> {
+                String location =
+                        wait.until(driver -> {
 
-                    String text = systemDirectedLocation.getText().trim();
+                            String text =
+                                    systemDirectedLocation
+                                            .getText()
+                                            .trim();
 
-                    return text.isEmpty() ? null : text;
-                });
+                            return text.isEmpty()
+                                    ? null
+                                    : text;
+                        });
 
 
                 // =================================================
                 // PRINT SYSTEM GENERATED LOCATION
                 // =================================================
 
-                System.out.println("System Directed Location received: " + location);
-                storeIlpnLocation(ilpn, location);
+                System.out.println(
+                        "System Directed Location received: "
+                                + location
+                );
+
+                storeIlpnLocation(
+                        ilpn,
+                        location
+                );
 
 
                 // =================================================
@@ -1380,7 +1415,11 @@ public class MUPPage extends BasePage {
 
                 if (location == null || location.isEmpty()) {
 
-                    throw new IllegalStateException("System Directed Putaway location is empty " + "for ILPN: " + ilpn);
+                    throw new IllegalStateException(
+                            "System Directed Putaway location is empty "
+                                    + "for ILPN: "
+                                    + ilpn
+                    );
                 }
 
 
@@ -1388,11 +1427,202 @@ public class MUPPage extends BasePage {
                 // SCAN SYSTEM DIRECTED LOCATION
                 // =================================================
 
-                type(scanLocUD, location);
+                type(
+                        scanLocUD,
+                        location
+                );
 
                 Thread.sleep(2000);
 
                 pressEnter(scanLocUD);
+
+
+                // =========================================================
+                // OPTIONAL SCAN CONTAINER VALIDATION
+                // =========================================================
+                //
+                // After scanning the location, sometimes the application
+                // displays the Scan Container field.
+                //
+                // Give the UI 2 seconds to render the next step.
+                //
+                // Then wait up to 5 seconds for the existing
+                // scanContainer element to become displayed.
+                //
+                // If it appears:
+                //     1. Get Expected Container using getText()
+                //     2. Type it into Scan Container
+                //     3. Validate getAttribute("value")
+                //     4. Press Enter
+                //
+                // If it does not appear:
+                //     Continue the normal SD Putaway flow.
+                // =========================================================
+
+                Thread.sleep(2000);
+
+                By expectedContainerLocator =
+                        By.xpath(
+                                "//ion-col[@data-component-id='acceptlpnandcompletemove_barcodetextfield_expectedcontainer']"
+                        );
+
+                WebDriverWait containerWait =
+                        new WebDriverWait(
+                                driver,
+                                Duration.ofSeconds(5)
+                        );
+
+                boolean scanContainerDisplayed = false;
+
+                try {
+
+                    scanContainerDisplayed =
+                            containerWait.until(
+                                    driver ->
+                                            scanContainer.isDisplayed()
+                            );
+
+                } catch (TimeoutException e) {
+
+                    scanContainerDisplayed = false;
+                }
+
+
+                // =========================================================
+                // SCAN CONTAINER IS PRESENT
+                // =========================================================
+
+                if (scanContainerDisplayed) {
+
+                    System.out.println(
+                            "Scan Container field is displayed after "
+                                    + "scanning location for ILPN: "
+                                    + ilpn
+                    );
+
+
+                    // =====================================================
+                    // GET EXPECTED CONTAINER
+                    // =====================================================
+
+                    WebElement expectedContainerElement =
+                            containerWait.until(
+                                    ExpectedConditions.visibilityOfElementLocated(
+                                            expectedContainerLocator
+                                    )
+                            );
+
+                    String expectedContainer =
+                            expectedContainerElement
+                                    .getText()
+                                    .trim();
+
+                    if (expectedContainer.isEmpty()) {
+
+                        throw new IllegalStateException(
+                                "Expected container value is empty "
+                                        + "for ILPN: "
+                                        + ilpn
+                        );
+                    }
+
+                    System.out.println(
+                            "Expected Container received from UI: "
+                                    + expectedContainer
+                    );
+
+
+                    // =====================================================
+                    // TYPE EXPECTED CONTAINER
+                    // =====================================================
+
+                    type(
+                            scanContainer,
+                            expectedContainer
+                    );
+
+
+                    // =====================================================
+                    // VALIDATE SCAN CONTAINER VALUE
+                    // =====================================================
+
+                    String enteredContainer =
+                            containerWait.until(
+                                    driver -> {
+
+                                        String value =
+                                                scanContainer
+                                                        .getAttribute("value");
+
+                                        if (value == null
+                                                || value.trim().isEmpty()) {
+
+                                            return null;
+                                        }
+
+                                        return value.trim();
+                                    }
+                            );
+
+
+                    System.out.println(
+                            "Entered Scan Container value: "
+                                    + enteredContainer
+                    );
+
+
+                    // =====================================================
+                    // COMPARE EXPECTED VS ACTUAL
+                    // =====================================================
+
+                    if (!expectedContainer.equals(enteredContainer)) {
+
+                        throw new IllegalStateException(
+                                "Scan Container validation failed. "
+                                        + "Expected: "
+                                        + expectedContainer
+                                        + " | Actual: "
+                                        + enteredContainer
+                        );
+                    }
+
+
+                    System.out.println(
+                            "Scan Container validation passed. "
+                                    + "Expected: "
+                                    + expectedContainer
+                                    + " | Actual: "
+                                    + enteredContainer
+                    );
+
+
+                    // =====================================================
+                    // PRESS ENTER
+                    // =====================================================
+
+                    pressEnter(scanContainer);
+
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "Validated and scanned expected container "
+                                    + expectedContainer
+                                    + " for ILPN "
+                                    + ilpn
+                    );
+
+                } else {
+
+                    // =====================================================
+                    // SCAN CONTAINER NOT PRESENT
+                    // =====================================================
+
+                    System.out.println(
+                            "Scan Container field is not displayed after "
+                                    + "location scan for ILPN: "
+                                    + ilpn
+                                    + ". Continuing normal flow."
+                    );
+                }
 
 
                 // =================================================
@@ -1420,10 +1650,20 @@ public class MUPPage extends BasePage {
                 // LOG COMPLETION
                 // =================================================
 
-                System.out.println("System Directed Putaway completed for ILPN: " + ilpn + " | Location: " + location);
+                System.out.println(
+                        "System Directed Putaway completed for ILPN: "
+                                + ilpn
+                                + " | Location: "
+                                + location
+                );
 
-
-                report.addReportStepWithScreenshot(StepStatus.PASS, "System Directed Putaway completed for ILPN: " + ilpn + " | Location: " + location);
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "System Directed Putaway completed for ILPN: "
+                                + ilpn
+                                + " | Location: "
+                                + location
+                );
             }
 
 
@@ -1435,7 +1675,10 @@ public class MUPPage extends BasePage {
 
             Thread.sleep(4000);
 
-            type(searchBarInLandingPage, "ASNs");
+            type(
+                    searchBarInLandingPage,
+                    "ASNs"
+            );
 
             Thread.sleep(3000);
 
@@ -1448,7 +1691,10 @@ public class MUPPage extends BasePage {
             // FILTER CURRENT ASN
             // =====================================================
 
-            type(filterAsnById, asnId);
+            type(
+                    filterAsnById,
+                    asnId
+            );
 
             Thread.sleep(3000);
 
@@ -1468,17 +1714,21 @@ public class MUPPage extends BasePage {
             // VERIFY CURRENT ASN
             // =====================================================
 
-
             List<String> ilpns = new ArrayList<>();
 
             for (ILPNData ilpnData : asnData.getIlpns()) {
 
-                ilpns.add(ilpnData.getIlpn());
+                ilpns.add(
+                        ilpnData.getIlpn()
+                );
             }
 
             AsnPage asnPage = new AsnPage();
 
-            asnPage.verifyILPNLocation(asnId, ilpns);
+            asnPage.verifyILPNLocation(
+                    asnId,
+                    ilpns
+            );
         }
 
 
@@ -1487,19 +1737,22 @@ public class MUPPage extends BasePage {
         // =========================================================
 
         System.out.println("======================================");
-        System.out.println("ALL SYSTEM DIRECTED PUTAWAY COMPLETED");
+        System.out.println(
+                "ALL SYSTEM DIRECTED PUTAWAY COMPLETED"
+        );
         System.out.println("======================================");
 
 
         Thread.sleep(3000);
 
-
         click(refresh);
 
         Thread.sleep(3000);
 
-
-        report.addReportStepWithScreenshot(StepStatus.PASS, "Successfully Completed System Directed Putaway ASN Process");
+        report.addReportStepWithScreenshot(
+                StepStatus.PASS,
+                "Successfully Completed System Directed Putaway ASN Process"
+        );
     }
 
     private void receiveByUnitEachLpn() throws InterruptedException {
@@ -1618,10 +1871,11 @@ public class MUPPage extends BasePage {
             // OPEN 190 RECEIVING
             // =====================================================
 
-            type(searchBarInWmMobile, "190 Receiving");
-
-
-            Thread.sleep(3000);
+//            type(searchBarInWmMobile, "190 Receiving");
+//
+//
+//            Thread.sleep(3000);
+            searchAndWaitForNextElement(searchBarInWmMobile, "190 Receiving", click190Receiving);
 
 
             click(click190Receiving);
@@ -2512,6 +2766,7 @@ public class MUPPage extends BasePage {
         type(
                 searchBarInWmMobile,
                 "190 User Directed");
+        searchAndWaitForNextElement(searchBarInWmMobile, "190 User Directed", clickUD);
 
         Thread.sleep(3000);
 
@@ -2524,19 +2779,10 @@ public class MUPPage extends BasePage {
                 StepStatus.PASS,
                 "User Entered 190 Putaway Transaction"
         );
-
-
-        // =========================================================
-        // SCAN PALLET ID
-        // =========================================================
-
         type(
                 scanContainer,
                 palletId);
-
         Thread.sleep(2000);
-
-
         pressEnter(scanContainer);
 
         Thread.sleep(3000);
@@ -2563,18 +2809,16 @@ public class MUPPage extends BasePage {
                 location);
 
         Thread.sleep(2000);
-
-
+        report.addReportStepWithScreenshot(StepStatus.PASS, "Putaway Details Entered");
         pressEnter(scanLocUD);
-
         Thread.sleep(10000);
-
-        report.addReportStepWithScreenshot(
-                StepStatus.PASS,
-                "User Scanned the Location "
-                        + location
-                        + " in 190 User Directed Transaction"
-        );
+        handleDifferentItemDedicatedWarning();
+//        report.addReportStepWithScreenshot(
+//                StepStatus.PASS,
+//                "User Scanned the Location "
+//                        + location
+//                        + " in 190 User Directed Transaction"
+//        );
 
 
         // =========================================================
@@ -2582,22 +2826,10 @@ public class MUPPage extends BasePage {
         // =========================================================
 
         driver.close();
-
-
-        // =========================================================
-        // RETURN TO PARENT WINDOW
-        // =========================================================
-
         driver.switchTo().window(parentWindowId);
-
         System.out.println(
                 "Returned to parent window after Pallet Putaway"
         );
-
-
-        // =========================================================
-        // PALLET PUTAWAY COMPLETED
-        // =========================================================
 
         System.out.println("======================================");
         System.out.println("PALLET PUTAWAY COMPLETED");
@@ -2823,42 +3055,43 @@ public class MUPPage extends BasePage {
                     ilpns
             );
         }
-
-
-        // =========================================================
-        // FINAL REPORT
-        // =========================================================
-
-        report.addReportStepWithScreenshot(
-                StepStatus.PASS,
-                "Pallet Putaway and ILPN Verification completed "
-                        + "for Pallet: "
-                        + palletId
-                        + " | Location: "
-                        + location
-        );
+//        report.addReportStepWithScreenshot(
+//                StepStatus.PASS,
+//                "Pallet Putaway and ILPN Verification completed "
+//                        + "for Pallet: "
+//                        + palletId
+//                        + " | Location: "
+//                        + location
+//        );
     }
 
 
 
     public void palletizeILPN() throws InterruptedException {
+
+        // =========================================================
+        // OPEN WM MOBILE
+        // =========================================================
+
         click(menuToggleButton);
         Thread.sleep(4000);
+
         type(searchBarInLandingPage, "WM Mobile");
 
-
-        // =================================================
+        // =========================================================
         // STORE PARENT WINDOW
-        // =================================================
+        // =========================================================
 
         String parentWindowId = driver.getWindowHandle();
 
-        ScenarioContext.set("parentWindowId", parentWindowId);
+        ScenarioContext.set(
+                "parentWindowId",
+                parentWindowId
+        );
 
-
-        // =================================================
+        // =========================================================
         // OPEN WM MOBILE
-        // =================================================
+        // =========================================================
 
         click(clickWmMobileFromMenu);
 
@@ -2866,10 +3099,11 @@ public class MUPPage extends BasePage {
 
         Thread.sleep(5000);
 
-
-        // =================================================
+        // =========================================================
         // SWITCH TO WM MOBILE WINDOW
-        // =================================================
+        // =========================================================
+
+        boolean childWindowFound = false;
 
         for (String handle : driver.getWindowHandles()) {
 
@@ -2877,51 +3111,238 @@ public class MUPPage extends BasePage {
 
                 driver.switchTo().window(handle);
 
+                childWindowFound = true;
+
                 break;
             }
         }
+
+        if (!childWindowFound) {
+
+            throw new IllegalStateException(
+                    "WM Mobile child window was not opened for Palletize ILPN"
+            );
+        }
+
         Thread.sleep(5000);
-        type(searchBarInWmMobile, "palletize ilpn");
+
+        // =========================================================
+        // OPEN PALLETIZE ILPN
+        // =========================================================
+
+//        type(
+//                searchBarInWmMobile,
+//                "palletize ilpn"
+//        );
+        searchAndWaitForNextElement(searchBarInWmMobile, "palletize ilpn", clickPalletizeILPN);
 
         Thread.sleep(3000);
 
-
         click(clickPalletizeILPN);
-        report.addReportStepWithScreenshot(StepStatus.PASS, "User Entered Palletize ILPN Transaction");
+
+        report.addReportStepWithScreenshot(
+                StepStatus.PASS,
+                "User Entered Palletize ILPN Transaction"
+        );
 
         Thread.sleep(4000);
-        click(generatePallet);
 
-        Thread.sleep(4000);
-        click(confirmPrinter);
-        Thread.sleep(5000);
-        List<ASNData> createdASNData = (List<ASNData>) ScenarioContext.get("CreatedASNData");
-        if (createdASNData == null || createdASNData.isEmpty()) {
-            throw new IllegalStateException("No Created ASN data found in ScenarioContext");
+        // =========================================================
+        // GET CREATED ASN DATA
+        // =========================================================
+
+        @SuppressWarnings("unchecked")
+        List<ASNData> createdASNData =
+                (List<ASNData>)
+                        ScenarioContext.get("CreatedASNData");
+
+        if (createdASNData == null
+                || createdASNData.isEmpty()) {
+
+            throw new IllegalStateException(
+                    "No Created ASN data found in ScenarioContext"
+            );
         }
+
+        // Keep a separate pallet ID for each ASN for multi-ASN processing.
+        Map<String, String> palletIdsByAsn = new LinkedHashMap<>();
+        ScenarioContext.set("CreatedPalletIdsByASN", palletIdsByAsn);
+
         Thread.sleep(5000);
 
-        System.out.println("Total ASNs for Palletize: " + createdASNData.size());
-        LocationDetails locationDetails = new LocationDetails();
+        System.out.println(
+                "Total ASNs for Palletize: "
+                        + createdASNData.size()
+        );
+
+        // =========================================================
+        // PROCESS EACH ASN
+        // =========================================================
+
         for (ASNData asnData : createdASNData) {
+
+            // Generate and confirm a fresh pallet for each ASN.
+            click(generatePallet);
+            Thread.sleep(4000);
+            click(confirmPrinter);
+            Thread.sleep(5000);
+
             String asnId = asnData.getAsn();
-            for (ILPNData ilpnData : asnData.getIlpns()) {
+
+            if (asnId == null || asnId.isBlank()) {
+
+                throw new IllegalStateException(
+                        "ASN ID is null or empty during Palletize ILPN"
+                );
+            }
+
+            // =====================================================
+            // PROCESS ALL ILPNs FOR CURRENT ASN
+            // =====================================================
+
+            List<ILPNData> ilpns =
+                    asnData.getIlpns();
+
+            if (ilpns == null || ilpns.isEmpty()) {
+
+                throw new IllegalStateException(
+                        "No ILPNs found for ASN: "
+                                + asnId
+                );
+            }
+
+            for (ILPNData ilpnData : ilpns) {
+
                 Thread.sleep(3000);
-                String ilpn = ilpnData.getIlpn();
-                System.out.println("Processing ILPN: " + ilpn);
-                report.addReportStepWithScreenshot(StepStatus.PASS, "Processing ILPN: " + ilpn);
-                type(scanILPN, ilpn);
+
+                String ilpn =
+                        ilpnData.getIlpn();
+
+                if (ilpn == null || ilpn.isBlank()) {
+
+                    throw new IllegalStateException(
+                            "ILPN is null or empty for ASN: "
+                                    + asnId
+                    );
+                }
+
+                System.out.println(
+                        "Processing ILPN: "
+                                + ilpn
+                );
+
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "Processing ILPN: "
+                                + ilpn
+                                + " for ASN: "
+                                + asnId
+                );
+
+                // =================================================
+                // SCAN ILPN
+                // =================================================
+
+                type(
+                        scanILPN,
+                        ilpn
+                );
+
                 Thread.sleep(3000);
+
                 pressEnter(scanILPN);
             }
-            String palletId = getPalletFromPalletizeTransaction.getText();
-            ScenarioContext.set("CreatedPalletId", palletId);
-            report.addReportStepWithScreenshot(StepStatus.PASS, "Pallet ID from Palletize ILPN: " + palletId);
+
+            // =====================================================
+            // GET GENERATED PALLET ID
+            // =====================================================
+
+            String palletId =
+                    getPalletFromPalletizeTransaction
+                            .getText()
+                            .trim();
+
+            if (palletId.isBlank()) {
+
+                throw new IllegalStateException(
+                        "Pallet ID could not be fetched after "
+                                + "Palletize ILPN for ASN: "
+                                + asnId
+                );
+            }
+
+            // =====================================================
+            // STORE PALLET ID
+            // =====================================================
+
+            palletIdsByAsn.put(asnId.trim(), palletId);
+            ScenarioContext.set("CreatedPalletIdsByASN", palletIdsByAsn);
+
+            // Preserve the legacy key for existing single-ASN scenarios.
+            ScenarioContext.set(
+                    "CreatedPalletId",
+                    palletId
+            );
+
+            System.out.println(
+                    "Generated Pallet ID: "
+                            + palletId
+            );
+
+            System.out.println(
+                    "Stored CreatedPalletId in ScenarioContext: "
+                            + ScenarioContext.get("CreatedPalletId")
+            );
+
+            report.addReportStepWithScreenshot(
+                    StepStatus.PASS,
+                    "Pallet ID from Palletize ILPN: "
+                            + palletId
+            );
+
             Thread.sleep(2000);
+
+            // =====================================================
+            // END PALLET
+            // =====================================================
+
             click(endPallet);
+
+            Thread.sleep(3000);
+
+            // =====================================================
+            // IMPORTANT
+            //
+            // DO NOT VALIDATE PARENT LPN WHILE STILL IN WM MOBILE.
+            //
+            // The ASN / LPN Inventory UI is in the parent window.
+            // =====================================================
         }
+
+        // =========================================================
+        // CLOSE WM MOBILE
+        // =========================================================
+
         driver.close();
+
+        // =========================================================
+        // RETURN TO PARENT WINDOW
+        // =========================================================
+
         driver.switchTo().window(parentWindowId);
+
+        Thread.sleep(3000);
+
+        System.out.println(
+                "Returned to parent window after Palletize ILPN"
+        );
+
+        // Validate from the parent window after palletization.
+        if (createdASNData.size() == 1) {
+            verifyPalletizedILPNParentLpn();
+        } else {
+            verifyMultiAsnPalletizedILPNParentLpn();
+        }
     }
 
     // =========================================================
@@ -3131,9 +3552,10 @@ public class MUPPage extends BasePage {
             // OPEN 190 RECEIVING
             // =====================================================
 
-            type(
-                    searchBarInWmMobile,
-                    "190 Receiving");
+//            type(
+//                    searchBarInWmMobile,
+//                    "190 Receiving");
+            searchAndWaitForNextElement(searchBarInWmMobile, "190 Receiving", click190Receiving);
 
             Thread.sleep(3000);
 
@@ -3325,6 +3747,30 @@ public class MUPPage extends BasePage {
                 System.out.println(
                         "Completed LPN: "
                                 + lpnId
+                );
+
+                // =====================================================
+                // STORE GENERATED LPN AND ITEM IN ASN DATA
+                //
+                // palletPutaway() uses CreatedASNData to verify the
+                // ILPN locations after the pallet putaway transaction.
+                // Register the generated LPN here so that verification
+                // can retrieve it from asnData.getIlpns().
+                // =====================================================
+
+                ILPNData ilpnData = new ILPNData(lpnId);
+                ilpnData.addItem(itemData);
+                asnData.addIlpn(ilpnData);
+
+                System.out.println(
+                        "Stored ILPN in ASNData: "
+                                + lpnId
+                                + " | ASN: "
+                                + asnId
+                                + " | Item: "
+                                + item
+                                + " | Total ILPNs for ASN: "
+                                + asnData.getIlpns().size()
                 );
             }
 
@@ -4042,12 +4488,11 @@ public class MUPPage extends BasePage {
         // BOTH FLOWS USE 190 RECEIVING
         // =========================================================
 
-        type(
+        searchAndWaitForNextElement(
                 searchBarInWmMobile,
-                "190 Receiving");
-
-        Thread.sleep(3000);
-
+                "190 Receiving",
+                click190Receiving
+        );
 
         click(click190Receiving);
 
@@ -4655,11 +5100,11 @@ public class MUPPage extends BasePage {
         // BOTH FLOWS USE 190 RECEIVING
         // =========================================================
 
-        type(
+        searchAndWaitForNextElement(
                 searchBarInWmMobile,
-                "190 Receiving");
-
-        Thread.sleep(3000);
+                "190 Receiving",
+                click190Receiving
+        );
 
         click(click190Receiving);
 
@@ -4916,16 +5361,32 @@ public class MUPPage extends BasePage {
             throws InterruptedException {
 
         // =========================================================
-        // GET PALLET ID
+        // MULTI-ASN PALLET FLOW
+        // =========================================================
+        // Each ASN has its own generated pallet. Process each mapping
+        // entry separately; CreatedPalletId is only the legacy single-ASN key.
+
+        @SuppressWarnings("unchecked")
+        List<ASNData> createdASNData =
+                (List<ASNData>) ScenarioContext.get("CreatedASNData");
+
+        @SuppressWarnings("unchecked")
+        Map<String, String> palletIdsByAsn =
+                (Map<String, String>) ScenarioContext.get("CreatedPalletIdsByASN");
+
+        if (createdASNData != null && createdASNData.size() > 1
+                && palletIdsByAsn != null && !palletIdsByAsn.isEmpty()) {
+            System.out.println("Multiple ASNs and pallet mappings detected. Starting per-ASN pallet putaway.");
+            multiAsnPalletPutaway();
+            return;
+        }
+
+        // =========================================================
+        // SINGLE-ASN / LEGACY PALLET FLOW
         // =========================================================
 
-        Object palletObject =
-                ScenarioContext.get("CreatedPalletId");
-
-        String palletId =
-                palletObject == null
-                        ? ""
-                        : palletObject.toString().trim();
+        Object palletObject = ScenarioContext.get("CreatedPalletId");
+        String palletId = palletObject == null ? "" : palletObject.toString().trim();
 
         // =========================================================
         // PALLET AVAILABLE
@@ -5159,8 +5620,675 @@ public class MUPPage extends BasePage {
                 "======================================"
         );
     }
+    /**
+     * Multi-ASN phase 1: palletize every ASN, then validate every ILPN
+     * parent LPN against that ASN's own generated pallet. This method
+     * intentionally does not perform putaway.
+     */
+    public void multiAsnPalletizeAndValidate() throws InterruptedException {
+        // palletizeILPN() now performs parent-LPN validation itself.
+        palletizeILPN();
+    }
 
+    /** Validates all ASN-to-pallet parent-LPN relationships. */
+    @SuppressWarnings("unchecked")
+    public void verifyMultiAsnPalletizedILPNParentLpn() throws InterruptedException {
+        List<ASNData> createdASNData =
+                (List<ASNData>) ScenarioContext.get("CreatedASNData");
+        Map<String, String> palletIdsByAsn =
+                (Map<String, String>) ScenarioContext.get("CreatedPalletIdsByASN");
+
+        if (createdASNData == null || createdASNData.isEmpty()) {
+            throw new IllegalStateException("No Created ASN data found for multi-ASN parent-LPN validation");
+        }
+        if (palletIdsByAsn == null || palletIdsByAsn.isEmpty()) {
+            throw new IllegalStateException("No ASN-to-pallet mapping found in ScenarioContext");
+        }
+
+        click(menuToggleButton);
+        Thread.sleep(4000);
+        type(searchBarInLandingPage, "ASNs");
+        Thread.sleep(3000);
+        click(clickAsnSFromMenu);
+        Thread.sleep(5000);
+
+        AsnPage asnPage = new AsnPage();
+        for (int i = 0; i < createdASNData.size(); i++) {
+            ASNData asnData = createdASNData.get(i);
+            String asnId = asnData.getAsn();
+            if (asnId == null || asnId.isBlank()) {
+                throw new IllegalStateException("ASN ID is null or empty during multi-ASN parent-LPN validation");
+            }
+            asnId = asnId.trim();
+            String palletId = palletIdsByAsn.get(asnId);
+            if (palletId == null || palletId.isBlank()) {
+                throw new IllegalStateException("No pallet ID stored for ASN: " + asnId);
+            }
+            List<ILPNData> ilpnDataList = asnData.getIlpns();
+            if (ilpnDataList == null || ilpnDataList.isEmpty()) {
+                throw new IllegalStateException("No ILPNs found for ASN: " + asnId);
+            }
+            List<String> ilpns = new ArrayList<>();
+            for (ILPNData ilpnData : ilpnDataList) {
+                String ilpn = ilpnData.getIlpn();
+                if (ilpn == null || ilpn.isBlank()) {
+                    throw new IllegalStateException("ILPN is null or empty for ASN: " + asnId);
+                }
+                ilpns.add(ilpn.trim());
+            }
+
+            type(filterAsnById, asnId);
+            Thread.sleep(2000);
+            pressEnter(filterAsnById);
+            Thread.sleep(3000);
+            click(refresh);
+            Thread.sleep(3000);
+
+            asnPage.verifyILPNParentLpn(asnId, ilpns, palletId);
+
+            // Return directly from LPN Inventory to ASN UI before the next ASN.
+            if (i < createdASNData.size() - 1) {
+                WebElement asnsLink = wait.until(
+                        ExpectedConditions.elementToBeClickable(By.linkText("ASNs"))
+                );
+                click(asnsLink);
+                waitForPageLoad();
+                Thread.sleep(4000);
+            }
+            System.out.println("Parent LPN validation passed for ASN: " + asnId
+                    + " | Expected pallet: " + palletId);
+        }
+        System.out.println("All multi-ASN parent-LPN validations passed.");
+    }
+
+
+    /**
+     * Multi-ASN pallet putaway. This method must be called only after
+     * multiAsnPalletizeAndValidate() has completed successfully.
+     * Each ASN is put away using its own pallet ID, then its ILPN locations
+     * are verified before proceeding to the next ASN.
+     */
+    public void multiAsnPalletPutaway() throws InterruptedException {
+
+        @SuppressWarnings("unchecked")
+        List<ASNData> createdASNData =
+                (List<ASNData>) ScenarioContext.get("CreatedASNData");
+
+        @SuppressWarnings("unchecked")
+        Map<String, String> palletIdsByAsn =
+                (Map<String, String>) ScenarioContext.get("CreatedPalletIdsByASN");
+
+        if (createdASNData == null || createdASNData.isEmpty()) {
+            throw new IllegalStateException("No Created ASN data found for multi-ASN pallet putaway");
+        }
+        if (palletIdsByAsn == null || palletIdsByAsn.isEmpty()) {
+            throw new IllegalStateException("No ASN-to-pallet mapping found. Run palletization and parent-LPN validation first.");
+        }
+
+        // Ensure the complete pallet map exists before starting any putaway.
+        for (ASNData asnData : createdASNData) {
+            String asnId = asnData.getAsn();
+            if (asnId == null || asnId.isBlank()) {
+                throw new IllegalStateException("ASN ID is null or empty in CreatedASNData");
+            }
+            if (asnData.getIlpns() == null || asnData.getIlpns().isEmpty()) {
+                throw new IllegalStateException("No ILPNs found for ASN: " + asnId);
+            }
+            String palletId = palletIdsByAsn.get(asnId.trim());
+            if (palletId == null || palletId.isBlank()) {
+                throw new IllegalStateException("No pallet ID stored for ASN: " + asnId);
+            }
+        }
+
+        String parentWindowId = driver.getWindowHandle();
+        LocationDetails locationDetails = new LocationDetails();
+        Map<String, String> ilpnLocationMap = getIlpnLocationMap();
+        AsnPage asnPage = new AsnPage();
+
+        for (ASNData asnData : createdASNData) {
+            String asnId = asnData.getAsn().trim();
+            String palletId = palletIdsByAsn.get(asnId).trim();
+            String location = locationDetails.getNextReserveLocation();
+
+            if (location == null || location.isBlank()) {
+                throw new IllegalStateException("No reserve location available for pallet " + palletId + " (ASN " + asnId + ")");
+            }
+            location = location.trim();
+
+            System.out.println("Starting pallet putaway | ASN: " + asnId + " | Pallet: " + palletId + " | Location: " + location);
+
+            // Launch WM Mobile in a separate window for this pallet.
+            click(menuToggleButton);
+            Thread.sleep(4000);
+            type(searchBarInLandingPage, "WM Mobile");
+            click(clickWmMobileFromMenu);
+            waitForPageLoad();
+            Thread.sleep(5000);
+
+            boolean switchedToMobile = false;
+            for (String handle : driver.getWindowHandles()) {
+                if (!handle.equals(parentWindowId)) {
+                    driver.switchTo().window(handle);
+                    switchedToMobile = true;
+                    break;
+                }
+            }
+            if (!switchedToMobile) {
+                throw new IllegalStateException("WM Mobile window did not open for ASN " + asnId);
+            }
+
+            Thread.sleep(3000);
+            type(searchBarInWmMobile, "190 User Directed");
+            searchAndWaitForNextElement(searchBarInWmMobile, "190 User Directed", clickUD);
+            Thread.sleep(3000);
+            click(clickUD);
+            Thread.sleep(4000);
+
+            type(scanContainer, palletId);
+            Thread.sleep(2000);
+            pressEnter(scanContainer);
+            Thread.sleep(3000);
+
+            type(scanLocUD, location);
+            Thread.sleep(2000);
+            pressEnter(scanLocUD);
+            Thread.sleep(10000);
+            handleDifferentItemDedicatedWarning();
+
+            report.addReportStepWithScreenshot(
+                    StepStatus.PASS,
+                    "Pallet putaway completed | ASN: " + asnId + " | Pallet: " + palletId + " | Location: " + location
+            );
+
+            driver.close();
+            driver.switchTo().window(parentWindowId);
+            System.out.println("Returned to parent window after putaway for ASN: " + asnId);
+
+            List<String> ilpns = new ArrayList<>();
+            for (ILPNData ilpnData : asnData.getIlpns()) {
+                String ilpn = ilpnData.getIlpn();
+                if (ilpn == null || ilpn.isBlank()) {
+                    throw new IllegalStateException("ILPN is null or empty for ASN: " + asnId);
+                }
+                ilpn = ilpn.trim();
+                ilpns.add(ilpn);
+                ilpnLocationMap.put(ilpn, location);
+            }
+
+            // Navigate to ASN list and verify only the current ASN's ILPNs.
+            click(menuToggleButton);
+            Thread.sleep(4000);
+            type(searchBarInLandingPage, "ASNs");
+            Thread.sleep(3000);
+            click(clickAsnSFromMenu);
+            Thread.sleep(4000);
+            type(filterAsnById, asnId);
+            Thread.sleep(2000);
+            pressEnter(filterAsnById);
+            Thread.sleep(3000);
+            click(refresh);
+            Thread.sleep(3000);
+
+            asnPage.verifyILPNLocation(asnId, ilpns);
+            System.out.println("ILPN location validation passed | ASN: " + asnId + " | Location: " + location);
+        }
+
+        report.addReportStepWithScreenshot(
+                StepStatus.PASS,
+                "Multi-ASN pallet putaway and ILPN location verification completed for all " + createdASNData.size() + " ASNs"
+        );
+    }
+
+    /** Runs palletization for all created ASNs, then validates all parent LPNs.
+     * Putaway is intentionally a separate step so no pallet is put away unless
+     * every ASN's parent-LPN validation passes.
+     */
+
+
+    public void verifyPalletizedILPNParentLpn()
+            throws InterruptedException {
+
+        // =========================================================
+        // GET CREATED ASN DATA
+        // =========================================================
+
+        @SuppressWarnings("unchecked")
+        List<ASNData> createdASNData =
+                (List<ASNData>)
+                        ScenarioContext.get("CreatedASNData");
+
+        if (createdASNData == null
+                || createdASNData.isEmpty()) {
+
+            throw new IllegalStateException(
+                    "No Created ASN data found in ScenarioContext "
+                            + "for Parent LPN validation"
+            );
+        }
+
+        // =========================================================
+        // GET GENERATED PALLET ID
+        // =========================================================
+
+        Object palletObject =
+                ScenarioContext.get("CreatedPalletId");
+
+        if (palletObject == null) {
+
+            throw new IllegalStateException(
+                    "CreatedPalletId not found in ScenarioContext "
+                            + "after Palletize ILPN"
+            );
+        }
+
+        String palletId =
+                palletObject.toString().trim();
+
+        if (palletId.isBlank()) {
+
+            throw new IllegalStateException(
+                    "CreatedPalletId is empty after Palletize ILPN"
+            );
+        }
+
+        System.out.println(
+                "======================================"
+        );
+
+        System.out.println(
+                "STARTING PALLETIZED ILPN PARENT LPN VALIDATION"
+        );
+
+        System.out.println(
+                "Expected Pallet ID: "
+                        + palletId
+        );
+
+        System.out.println(
+                "Total ASNs: "
+                        + createdASNData.size()
+        );
+
+        System.out.println(
+                "======================================"
+        );
+
+        // =========================================================
+        // OPEN ASN UI
+        // =========================================================
+
+        click(menuToggleButton);
+
+        Thread.sleep(4000);
+
+        type(
+                searchBarInLandingPage,
+                "ASNs"
+        );
+
+        Thread.sleep(3000);
+
+        click(clickAsnSFromMenu);
+
+        Thread.sleep(5000);
+
+        // =========================================================
+        // VERIFY EACH ASN
+        // =========================================================
+
+        for (ASNData asnData : createdASNData) {
+
+            String asnId =
+                    asnData.getAsn();
+
+            if (asnId == null || asnId.isBlank()) {
+
+                throw new IllegalStateException(
+                        "ASN ID is null or empty during "
+                                + "Parent LPN validation"
+                );
+            }
+
+            asnId = asnId.trim();
+
+            // =====================================================
+            // GET ILPNs FOR CURRENT ASN
+            // =====================================================
+
+            List<ILPNData> ilpnDataList =
+                    asnData.getIlpns();
+
+            if (ilpnDataList == null
+                    || ilpnDataList.isEmpty()) {
+
+                throw new IllegalStateException(
+                        "No ILPNs found for ASN: "
+                                + asnId
+                );
+            }
+
+            List<String> ilpns =
+                    new ArrayList<>();
+
+            for (ILPNData ilpnData : ilpnDataList) {
+
+                String ilpn =
+                        ilpnData.getIlpn();
+
+                if (ilpn == null || ilpn.isBlank()) {
+
+                    throw new IllegalStateException(
+                            "ILPN is null or empty for ASN: "
+                                    + asnId
+                    );
+                }
+
+                ilpns.add(
+                        ilpn.trim()
+                );
+            }
+
+            // =====================================================
+            // FILTER CURRENT ASN
+            // =====================================================
+
+            type(
+                    filterAsnById,
+                    asnId
+            );
+
+            Thread.sleep(2000);
+
+            pressEnter(filterAsnById);
+
+            Thread.sleep(3000);
+
+            click(refresh);
+
+            Thread.sleep(3000);
+
+            // =====================================================
+            // EXISTING PARENT LPN VALIDATION
+            //
+            // We are reusing the validation already implemented
+            // in AsnPage.
+            //
+            // It checks:
+            //
+            // ILPN
+            //     ↓
+            // Parent LPN
+            //     ↓
+            // Generated Pallet ID
+            //
+            // If mismatch -> IllegalStateException
+            // -> Cucumber step FAILS
+            // -> SD-Putaway DOES NOT execute
+            // =====================================================
+
+            AsnPage asnPage =
+                    new AsnPage();
+
+            asnPage.verifyILPNParentLpn(
+                    asnId,
+                    ilpns,
+                    palletId
+            );
+
+            System.out.println(
+                    "Parent LPN validation completed successfully "
+                            + "for ASN: "
+                            + asnId
+            );
+        }
+
+        // =========================================================
+        // FINAL SUCCESS
+        // =========================================================
+
+        System.out.println(
+                "======================================"
+        );
+
+        System.out.println(
+                "PALLETIZED ILPN PARENT LPN VALIDATION PASSED"
+        );
+
+        System.out.println(
+                "Pallet ID: "
+                        + palletId
+        );
+
+        System.out.println(
+                "======================================"
+        );
+    }
+
+
+    public void putawayAtFixedLocation(String fixedLocation)
+            throws InterruptedException {
+
+        @SuppressWarnings("unchecked")
+        List<ASNData> createdASNData =
+                (List<ASNData>) ScenarioContext.get("CreatedASNData");
+
+        if (createdASNData == null || createdASNData.isEmpty()) {
+            throw new IllegalStateException(
+                    "No Created ASN data found in ScenarioContext");
+        }
+
+        if (fixedLocation == null || fixedLocation.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Fixed putaway location cannot be null or empty");
+        }
+
+        fixedLocation = fixedLocation.trim();
+
+        for (ASNData asnData : createdASNData) {
+            String asnId = asnData.getAsn();
+
+            if (asnData.getIlpns() == null || asnData.getIlpns().isEmpty()) {
+                throw new IllegalStateException(
+                        "No ILPNs found for ASN: " + asnId);
+            }
+
+            System.out.println(
+                    "Starting E2E Putaway | ASN: " + asnId
+                            + " | Location: " + fixedLocation);
+
+            for (ILPNData ilpnData : asnData.getIlpns()) {
+                String ilpn = ilpnData.getIlpn();
+
+                if (ilpn == null || ilpn.isBlank()) {
+                    throw new IllegalStateException(
+                            "ILPN is empty for ASN: " + asnId);
+                }
+
+                if (ilpnData.getItems() == null
+                        || ilpnData.getItems().isEmpty()) {
+                    throw new IllegalStateException(
+                            "No items found for ILPN: " + ilpn);
+                }
+
+                storeIlpnLocation(ilpn, fixedLocation);
+
+                for (ItemData itemData : ilpnData.getItems()) {
+                    String item = itemData.getItem();
+                    String quantity = itemData.getShippedQty();
+
+                    String parentWindowId = driver.getWindowHandle();
+                    ScenarioContext.set("parentWindowId", parentWindowId);
+
+                    click(menuToggleButton);
+                    Thread.sleep(2000);
+
+                    type(searchBarInLandingPage, "WM Mobile");
+                    Thread.sleep(2000);
+
+                    click(clickWmMobileFromMenu);
+                    waitForPageLoad();
+
+                    boolean childWindowFound = false;
+
+                    for (String handle : driver.getWindowHandles()) {
+                        if (!handle.equals(parentWindowId)) {
+                            driver.switchTo().window(handle);
+                            childWindowFound = true;
+                            break;
+                        }
+                    }
+
+                    if (!childWindowFound) {
+                        throw new IllegalStateException(
+                                "WM Mobile window was not opened for ILPN: "
+                                        + ilpn);
+                    }
+
+                    try {
+                        searchAndWaitForNextElement(
+                                searchBarInWmMobile,
+                                "190 User Directed",
+                                clickUD);
+
+                        click(clickUD);
+
+                        type(scanContainer, ilpn);
+                        pressEnter(scanContainer);
+
+                        type(scanItemUD, item);
+                        pressEnter(scanItemUD);
+
+                        type(scanQtyUD, quantity);
+                        pressEnter(scanQtyUD);
+
+                        type(scanLocUD, fixedLocation);
+                        pressEnter(scanLocUD);
+
+                        Thread.sleep(10000);
+                        handleDifferentItemDedicatedWarning();
+
+                        report.addReportStepWithScreenshot(
+                                StepStatus.PASS,
+                                "E2E Putaway completed for ILPN: " + ilpn
+                                        + " | Item: " + item
+                                        + " | Qty: " + quantity
+                                        + " | Location: " + fixedLocation);
+
+                    } finally {
+                        if (driver.getWindowHandles().contains(parentWindowId)) {
+                            if (!driver.getWindowHandle().equals(parentWindowId)) {
+                                driver.close();
+                            }
+
+                            driver.switchTo().window(parentWindowId);
+                        }
+                    }
+                }
+            }
+
+            // Verify the ILPN locations using the existing validation.
+            click(menuToggleButton);
+            Thread.sleep(2000);
+
+            type(searchBarInLandingPage, "ASNs");
+            Thread.sleep(2000);
+
+            click(clickAsnSFromMenu);
+            Thread.sleep(3000);
+
+            type(filterAsnById, asnId);
+            pressEnter(filterAsnById);
+
+            click(refresh);
+            Thread.sleep(3000);
+
+            List<String> ilpns = new ArrayList<>();
+
+            for (ILPNData ilpnData : asnData.getIlpns()) {
+                ilpns.add(ilpnData.getIlpn());
+            }
+
+            AsnPage asnPage = new AsnPage();
+            asnPage.verifyILPNLocation(asnId, ilpns);
+        }
+
+        report.addReportStepWithScreenshot(
+                StepStatus.PASS,
+                "E2E putaway and ILPN location verification completed"
+                        + " at location: " + fixedLocation);
+    }
+    public void processE2EWaveTasksInWmMobile(String waveNumber)
+            throws InterruptedException {
+
+        if (waveNumber == null || waveNumber.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Wave number cannot be null or empty");
+        }
+
+        Object taskObject =
+                ScenarioContext.get("Task Numbers - " + waveNumber);
+
+        if (!(taskObject instanceof List<?>)) {
+            throw new IllegalStateException(
+                    "Task numbers were not available in ScenarioContext for Wave: "
+                            + waveNumber);
+        }
+
+        List<?> storedTasks = (List<?>) taskObject;
+
+        if (storedTasks.isEmpty()) {
+            throw new IllegalStateException(
+                    "No tasks were available for Wave: " + waveNumber);
+        }
+
+        List<String> taskNumbers = new ArrayList<>();
+
+        for (Object task : storedTasks) {
+            if (task != null && !task.toString().isBlank()) {
+                taskNumbers.add(task.toString().trim());
+            }
+        }
+
+        if (taskNumbers.isEmpty()) {
+            throw new IllegalStateException(
+                    "No valid task IDs were available for Wave: " + waveNumber);
+        }
+
+        System.out.println("========================================");
+        System.out.println("E2E FULL-LPN WM MOBILE PICKING");
+        System.out.println("Wave Number: " + waveNumber);
+        System.out.println("Total Tasks: " + taskNumbers.size());
+        System.out.println("========================================");
+
+        for (int i = 0; i < taskNumbers.size(); i++) {
+            String taskId = taskNumbers.get(i);
+
+            System.out.println(
+                    "Processing E2E task " + (i + 1)
+                            + " of " + taskNumbers.size()
+                            + ": " + taskId);
+
+            processSingleWaveTask(
+                    taskId,
+                    waveNumber,
+                    false,  // Do not subtract one from the quantity.
+                    true,   // Preserve mandatory OK handling.
+                    true,   // Preserve optional OK handling.
+                    true,   // Return to Tasks after each task.
+                    true,   // Verify the task is Completed.
+                    true    // Use the E2E full-LPN branch.
+            );
+
+            report.addReportStepWithScreenshot(
+                    StepStatus.PASS,
+                    "E2E full-LPN task completed successfully: " + taskId);
+        }
+
+        report.addReportStepWithScreenshot(
+                StepStatus.PASS,
+                "All " + taskNumbers.size()
+                        + " E2E task(s) completed for Wave: " + waveNumber);
+
+        System.out.println("E2E WM Mobile picking completed for Wave: " + waveNumber);
+    }
 }
-
-
-

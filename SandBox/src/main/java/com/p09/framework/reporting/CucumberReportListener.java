@@ -1,10 +1,12 @@
 package com.p09.framework.reporting;
 
 import com.aventstack.extentreports.MediaEntityBuilder;
+import com.aventstack.extentreports.ExtentTest;
 import com.p09.framework.utilities.ScreenshotUtil;
 import io.cucumber.plugin.ConcurrentEventListener;
 import io.cucumber.plugin.event.EventPublisher;
 import io.cucumber.plugin.event.PickleStepTestStep;
+import io.cucumber.plugin.event.Status;
 import io.cucumber.plugin.event.TestStepFinished;
 import io.cucumber.plugin.event.TestStepStarted;
 import io.cucumber.plugin.event.TestCaseFinished;
@@ -26,30 +28,27 @@ public class CucumberReportListener
         publisher.registerHandlerFor(
                 TestCaseFinished.class,
                 this::handleTestCaseFinished);
-
     }
 
-    private void handleStepStarted(
-            TestStepStarted event) {
+    private void handleStepStarted(TestStepStarted event) {
 
-        if (event.getTestStep()
-                instanceof PickleStepTestStep pickleStep) {
-
-            String stepText =
-                    pickleStep.getStep().getKeyword()
-                            + " "
-                            + pickleStep.getStep().getText();
-
-            System.out.println(
-                    "Cucumber Step : " + stepText);
-
-            ReportEngine.createStep(stepText);
-
-            // Reset failure flag for this step
-            ReportEngine.clearFailureReported();
-
+        if (!(event.getTestStep() instanceof PickleStepTestStep pickleStep)) {
+            return;
         }
 
+        String stepText =
+                pickleStep.getStep().getKeyword()
+                        + " "
+                        + pickleStep.getStep().getText();
+
+        System.out.println(
+                "Cucumber Step : " + stepText);
+
+        ReportEngine.createStep(stepText);
+
+        // Used only to prevent duplicate failure screenshots
+        // for the same Cucumber step.
+        ReportEngine.clearFailureReported();
     }
 
     private void handleStepFinished(TestStepFinished event) {
@@ -58,56 +57,38 @@ public class CucumberReportListener
             return;
         }
 
-        io.cucumber.plugin.event.Status status =
+        Status status =
                 event.getResult().getStatus();
 
         System.out.println(
-                "STEP STATUS: "
-                        + status
+                "STEP STATUS: " + status
         );
+
+        ExtentTest currentStep =
+                ReportEngine.getCurrentStep();
 
         switch (status) {
 
             case PASSED -> {
-                // Step executed successfully.
-                // No need to explicitly log PASS because the Extent node
-                // will remain successful.
+
+                // Nothing required here.
+                // PASS is already represented by the successful
+                // Cucumber step and any PASS report entries.
             }
 
-//            case FAILED -> {
-//
-//                if (ReportEngine.isFailureReported()) {
-//                    ReportEngine.clearFailureReported();
-//                    return;
-//                }
-//
-//                try {
-//
-//                    String screenshotPath =
-//                            ScreenshotUtil.capture("Failed_Step");
-//
-//                    ReportEngine.getCurrentStep().fail(
-//                            "Step Failed",
-//                            com.aventstack.extentreports.MediaEntityBuilder
-//                                    .createScreenCaptureFromPath(screenshotPath)
-//                                    .build()
-//                    );
-//
-//                } catch (Exception e) {
-//
-//                    ReportEngine.getCurrentStep()
-//                            .fail(
-//                                    "Step Failed - Screenshot unavailable: "
-//                                            + e.getMessage()
-//                            );
-//                }
-//            }
             case FAILED -> {
 
+                // A Cucumber failure always means the scenario failed.
                 ReportEngine.markScenarioFailure();
 
+                // If ReportManager.fail() already logged the failure,
+                // do not create another failure entry.
                 if (ReportEngine.isFailureReported()) {
                     ReportEngine.clearFailureReported();
+                    return;
+                }
+
+                if (currentStep == null) {
                     return;
                 }
 
@@ -116,66 +97,107 @@ public class CucumberReportListener
                     String screenshotPath =
                             ScreenshotUtil.capture("Failed_Step");
 
-                    ReportEngine.getCurrentStep().fail(
+                    currentStep.fail(
                             "Step Failed",
                             MediaEntityBuilder
-                                    .createScreenCaptureFromPath(screenshotPath)
+                                    .createScreenCaptureFromPath(
+                                            screenshotPath)
                                     .build()
                     );
 
                 } catch (Exception e) {
 
-                    ReportEngine.getCurrentStep()
-                            .fail(
-                                    "Step Failed - Screenshot unavailable: "
-                                            + e.getMessage()
-                            );
+                    currentStep.fail(
+                            "Step Failed - Screenshot unavailable: "
+                                    + e.getMessage()
+                    );
                 }
             }
 
             case SKIPPED -> {
 
-                ReportEngine.getCurrentStep()
-                        .skip("Step Skipped");
+                // User requirement:
+                // scenario is considered passed only when all
+                // report/Cucumber steps are passed.
+                ReportEngine.markScenarioFailure();
+
+                if (currentStep != null) {
+
+                    currentStep.skip(
+                            "Step Skipped"
+                    );
+                }
             }
 
             case PENDING -> {
 
-                ReportEngine.getCurrentStep()
-                        .skip("Step Pending");
+                ReportEngine.markScenarioFailure();
+
+                if (currentStep != null) {
+
+                    currentStep.skip(
+                            "Step Pending"
+                    );
+                }
             }
 
             case UNDEFINED -> {
 
-                ReportEngine.getCurrentStep()
-                        .skip("Step Undefined");
+                ReportEngine.markScenarioFailure();
+
+                if (currentStep != null) {
+
+                    currentStep.skip(
+                            "Step Undefined"
+                    );
+                }
             }
 
             case AMBIGUOUS -> {
 
-                ReportEngine.getCurrentStep()
-                        .fail("Step Ambiguous");
+                ReportEngine.markScenarioFailure();
+
+                if (currentStep != null) {
+
+                    currentStep.fail(
+                            "Step Ambiguous"
+                    );
+                }
             }
+
             default -> {
-                ReportEngine.getCurrentStep().getStatus();
+
+                // Any status other than PASSED should not result
+                // in a green scenario.
+                if (status != Status.PASSED) {
+
+                    ReportEngine.markScenarioFailure();
+                }
             }
         }
     }
-    private void handleTestCaseFinished(
-            TestCaseFinished event) {
 
-        if (event.getResult()
-                .getStatus()
-                .isOk()) {
+    private void handleTestCaseFinished(TestCaseFinished event) {
 
-            ReportEngine.markScenarioPassed();
+        boolean cucumberPassed =
+                event.getResult()
+                        .getStatus()
+                        == Status.PASSED;
 
-        } else {
+        boolean reportFailed =
+                ReportEngine.isScenarioFailed();
+
+        boolean finalFailed =
+                !cucumberPassed
+                        || reportFailed;
+
+        if (finalFailed) {
 
             ReportEngine.markScenarioFailed();
 
+        } else {
+
+            ReportEngine.markScenarioPassed();
         }
-
     }
-
 }

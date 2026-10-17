@@ -15,7 +15,6 @@ import java.util.List;
 public class ASNOperations {
 
     AsnPage asnPage = new AsnPage();
-
     @When("user navigates to {string} page")
     public void navigateToASN(String uiName) throws InterruptedException {
         asnPage.navigateToAnyUi(uiName);
@@ -409,11 +408,11 @@ public class ASNOperations {
                 new ItemDetails();
 
 
-        if (itemDetails.primaryItems.size()
+        if (itemDetails.lpnLevelItems.size()
                 < numberOfLineItems) {
 
             throw new IllegalArgumentException(
-                    "Not enough items available in primaryItems. "
+                    "Not enough items available in lpnLevelItems. "
                             + "Required: "
                             + numberOfLineItems
                             + ", Available: "
@@ -515,9 +514,7 @@ public class ASNOperations {
                  itemIndex++) {
 
                 items.add(
-                        itemDetails.primaryItems.get(
-                                itemIndex
-                        )
+                        itemDetails.lpnLevelItems.get(itemIndex)
                 );
             }
 

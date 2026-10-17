@@ -103,6 +103,8 @@ public class AsnPage extends BasePage {
     public WebElement saveAsnDetail;
     @FindBy(xpath = "//button[@data-component-id='Close-Icon']")
     public WebElement closeCreatedAsnDetail;
+    @FindBy(xpath = "//span[contains(text(),'Showing ')]")
+    public WebElement showingTextAsnPageForVerification;
 
 
 
@@ -198,14 +200,14 @@ public class AsnPage extends BasePage {
 
             if (isDisplayed(
                     asnTextInAsnUi
-            )) {
-
-                report.addReportStepWithScreenshot(
-                        StepStatus.PASS,
-                        "Successfully navigated to "
-                                + uiName
-                                + " page"
-                );
+            )&& isDisplayed(showingTextAsnPageForVerification)) {
+                Thread.sleep(2000);
+                    report.addReportStepWithScreenshot(
+                            StepStatus.PASS,
+                            "Successfully navigated to "
+                                    + uiName
+                                    + " page"
+                    );
 
             } else {
 
@@ -216,20 +218,9 @@ public class AsnPage extends BasePage {
                                 + " page"
                 );
             }
-
-            report.addReportStepWithScreenshot(
-                    StepStatus.PASS,
-                    "Navigated to "
-                            + uiName
-                            + " page"
-            );
         }
     }
 
-
-    // =========================================================
-    // EXISTING NAVIGATE ANY UI
-    // =========================================================
 
     public String provideAsnDetails(
             List<String> items,
@@ -256,31 +247,13 @@ public class AsnPage extends BasePage {
                     quantity.trim()
             );
         }
-
-
         System.out.println(
                 "Quantities "
                         + quantitiesList
         );
-
-
         int totalDetail =
                 items.size();
-
         int cntr = 0;
-
-
-//        Thread.sleep(5000);
-
-//        waitForPageLoad();
-
-//        wait.until(
-//                ExpectedConditions
-//                        .elementToBeClickable(
-//                                createAsnButtonInAsnUi
-//                        )
-//        );
-
 
         click(createAsnButtonInAsnUi);
 
@@ -326,40 +299,29 @@ public class AsnPage extends BasePage {
 
 
         click(submitAsnOnceCreated);
-
-
+        waitForPageLoad();
+        Thread.sleep(2000);
         report.addReportStepWithoutScreenshot(
                 StepStatus.PASS,
                 "Created ASN ID: "
                         + createdAsnId
         );
-
-
-        report.addReportStepWithScreenshot(
-                StepStatus.PASS,
-                "ASN Created In Planning Status"
-        );
-
-
-//        Thread.sleep(8000);
-
-
         type(filterAsnById,
                 createdAsnId);
-
-
         if (Objects.equals(
                 filterAsnById.getAttribute("value"),
                 createdAsnId
         )) {
 
             pressEnter(filterAsnById);
+            if (getAttribute(filterAsnById,"value").equalsIgnoreCase(createdAsnId)) {
 
-            report.addReportStepWithScreenshot(
-                    StepStatus.PASS,
-                    "Filtered ASN By ID: "
-                            + createdAsnId
-            );
+                report.addReportStepWithScreenshot(
+                        StepStatus.PASS,
+                        "Filtered ASN By ID: "
+                                + createdAsnId
+                );
+            }
 
         } else {
 
@@ -449,57 +411,21 @@ public class AsnPage extends BasePage {
                 )) {
 
                     pressEnter(primaryBarcode);
-
-
-                    report.addReportStepWithScreenshot(
-                            StepStatus.PASS,
-                            "Entered Primary Barcode: "
-                                    + items.get(cntr)
-                    );
-
-
                     click(clickSearchAfterItemBarcodeEntered);
-
-
                     click(selectItemFromDetailSearch);
-
-
                     click(submitItemSearch);
-
-
                     waitForPageLoad();
-
-
                     type(shippedQty,
                             quantitiesList.get(cntr));
-
-
                     Thread.sleep(2000);
-
-
                     click(quantityUomDrop);
-
-
                     Thread.sleep(2000);
-
-
                     type(typeQtyUom,
                             "Unit");
-//                    Thread.sleep(4000);
-
-
                     click(selectUomAsUnit);
-
-
                     Thread.sleep(3000);
-
-
                     click(saveAsnDetail);
-
-
                     cntr++;
-
-
                 } else {
 
                     report.addReportStepWithScreenshot(
@@ -510,30 +436,16 @@ public class AsnPage extends BasePage {
 
                     System.exit(0);
                 }
-
-
                 click(closeCreatedAsnDetail);
             }
-
-
             totalDetail--;
         }
-
-
+        Thread.sleep(2000);
+        report.addReportStepWithScreenshot(StepStatus.PASS,"Line Items Created");
         click(redirectToAsnFromAsnDetail);
-
-
-        report.addReportStepWithScreenshot(
-                StepStatus.PASS,
-                "Redirected To ASNs Page From ASN Details Page"
-        );
-//        private final By asnStatusValidation =
-//                By.xpath("(//div[@data-component-id='AsnStatusDescription'])[1]");
         waitForStatus(asnStatusValidation,
                 () -> click(refresh),
                 status);
-
-
         return createdAsnId;
     }
 
@@ -544,36 +456,22 @@ public class AsnPage extends BasePage {
             String status,
             String vendorName)
             throws InterruptedException {
-
-        // =========================================================
-        // VALIDATE INPUT
-        // =========================================================
-
         if (vendorName == null || vendorName.isBlank()) {
             throw new IllegalArgumentException(
                     "Vendor name cannot be null or empty"
             );
         }
-
         vendorName = vendorName.trim();
-
         System.out.println(
                 "Creating ASN for Vendor: "
                         + vendorName
         );
-
         System.out.println(
                 "Total Items: "
                         + items.size()
         );
-
-        // =========================================================
-        // PARSE QUANTITIES
-        // =========================================================
-
         String[] quantitiesAsn =
                 shippedQtyAsn.split(",");
-
         List<String> quantitiesList =
                 new ArrayList<>();
 
@@ -674,15 +572,6 @@ public class AsnPage extends BasePage {
                 "Created ASN ID: "
                         + createdAsnId
         );
-
-        report.addReportStepWithScreenshot(
-                StepStatus.PASS,
-                "ASN Created In Planning Status"
-        );
-
-        // =========================================================
-        // FILTER ASN
-        // =========================================================
 
         type(filterAsnById,
                 createdAsnId);
@@ -959,7 +848,7 @@ public class AsnPage extends BasePage {
 
             if (isDisplayed(
                     asnTextInAsnUi
-            )) {
+            )&& isDisplayed(showingTextAsnPageForVerification)) {
 
                 report.addReportStepWithScreenshot(
                         StepStatus.PASS,
@@ -978,13 +867,6 @@ public class AsnPage extends BasePage {
                 );
             }
 
-
-            report.addReportStepWithScreenshot(
-                    StepStatus.PASS,
-                    "Navigated to "
-                            + uiName
-                            + " page"
-            );
         }
     }
 
@@ -1038,6 +920,8 @@ public class AsnPage extends BasePage {
         Thread.sleep(3000);
 
         click(more);
+        hover(verify);
+        report.addReportStepWithScreenshot(StepStatus.PASS, "Verify using without variance view");
 
         Thread.sleep(3000);
 
@@ -1240,7 +1124,7 @@ public class AsnPage extends BasePage {
             // =====================================================
 
             boolean validateCurrentLocation =
-                    locationType.contains("R");
+                    locationType.contains("R")||locationType.contains("B")||locationType.contains("E");
 
             boolean validatePreviousLocation =
                     locationType.contains("A");
@@ -1680,20 +1564,20 @@ public class AsnPage extends BasePage {
 
         if (palletId != null) {
 
-            report.addReportStepWithoutScreenshot(
-                    StepStatus.PASS,
-                    "ILPN Location and Parent LPN Validation Completed "
-                            + "for ASN: "
-                            + asn
-                            + " | Pallet: "
-                            + palletId
-            );
+//            report.addReportStepWithoutScreenshot(
+//                    StepStatus.PASS,
+//                    "ILPN Location and Parent LPN Validation Completed "
+//                            + "for ASN: "
+//                            + asn
+//                            + " | Pallet: "
+//                            + palletId
+//            );
 
         } else {
 
             report.addReportStepWithoutScreenshot(
                     StepStatus.PASS,
-                    "ILPN Location Validation Completed for ASN: "
+                    "ILPN Location Validation Step Completed for ASN: "
                             + asn
             );
         }
@@ -2162,7 +2046,7 @@ public class AsnPage extends BasePage {
          * Request #2 -> 10 ILPNs
          */
 
-        final int maxIlpnCreateRequest = 3;
+        final int maxIlpnCreateRequest = 5;
 
 
         System.out.println(
@@ -3601,17 +3485,12 @@ public class AsnPage extends BasePage {
                     "Parent LPN validation PASSED"
             );
         }
-
-        // =========================================================
-        // FINAL RESULT
-        // =========================================================
-
-        report.addReportStepWithoutScreenshot(
-                StepStatus.PASS,
-                "Parent LPN validation completed"
-                        + " | ASN: " + asn
-                        + " | Pallet: " + palletId
-        );
+//        report.addReportStepWithoutScreenshot(
+//                StepStatus.PASS,
+//                "Parent LPN validation completed"
+//                        + " | ASN: " + asn
+//                        + " | Pallet: " + palletId
+//        );
     }
 
 

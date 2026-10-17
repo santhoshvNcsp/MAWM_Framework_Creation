@@ -12,7 +12,7 @@ public class LocationDetails {
 
     private final List<String> reserveLocation = new ArrayList<>(List.of(
             "190R1011",
-            "190R1021"
+            "190A1011"
     ));
 
     private int activeLocationIndex = 0;

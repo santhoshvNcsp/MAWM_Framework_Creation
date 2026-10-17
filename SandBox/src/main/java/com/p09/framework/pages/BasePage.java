@@ -695,4 +695,106 @@ public abstract class BasePage {
 
 
     }
+    /**
+     * Searches a value and waits for the expected next element.
+     * If the next element does not appear after the first attempt,
+     * the search field is cleared and the search is performed once again.
+     *
+     * @param searchBar    Search input element
+     * @param valueToType  Value to enter in the search bar
+     * @param nextElement  Element expected after the search
+     */
+    protected void searchAndWaitForNextElement(
+            WebElement searchBar,
+            String valueToType,
+            Object nextElement) {
+
+        // =====================================================
+        // FIRST ATTEMPT
+        // =====================================================
+
+        wait.until(
+                ExpectedConditions.visibilityOf(searchBar)
+        );
+
+        click(searchBar);
+        type(searchBar, valueToType);
+
+        try {
+
+            waitForNextElement(nextElement);
+
+            System.out.println(
+                    "Search successful on first attempt: "
+                            + valueToType
+            );
+
+            return;
+
+        } catch (TimeoutException e) {
+
+            System.out.println(
+                    "Next element did not appear after first search. "
+                            + "Retrying: " + valueToType
+            );
+        }
+
+        // =====================================================
+        // SECOND ATTEMPT / RETRY
+        // =====================================================
+
+        wait.until(
+                ExpectedConditions.visibilityOf(searchBar)
+        );
+
+        click(searchBar);
+        searchBar.clear();
+
+        type(searchBar, valueToType);
+
+        try {
+
+            waitForNextElement(nextElement);
+
+            System.out.println(
+                    "Search successful after retry: "
+                            + valueToType
+            );
+
+        } catch (TimeoutException e) {
+
+            throw new RuntimeException(
+                    "Expected next element did not appear after retry. "
+                            + "Search value: " + valueToType,
+                    e
+            );
+        }
+    }
+    private void waitForNextElement(Object element) {
+
+        if (element instanceof By) {
+
+            wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(
+                            (By) element
+                    )
+            );
+
+        } else if (element instanceof WebElement) {
+
+            wait.until(
+                    ExpectedConditions.visibilityOf(
+                            (WebElement) element
+                    )
+            );
+
+        } else {
+
+            throw new IllegalArgumentException(
+                    "Next element must be either By or WebElement. "
+                            + "Received: "
+                            + element.getClass().getName()
+            );
+        }
+    }
 }
