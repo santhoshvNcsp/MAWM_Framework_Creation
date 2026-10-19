@@ -45,9 +45,6 @@ public class CucumberReportListener
                 "Cucumber Step : " + stepText);
 
         ReportEngine.createStep(stepText);
-
-        // Used only to prevent duplicate failure screenshots
-        // for the same Cucumber step.
         ReportEngine.clearFailureReported();
     }
 
@@ -63,6 +60,7 @@ public class CucumberReportListener
         System.out.println(
                 "STEP STATUS: " + status
         );
+        ReportEngine.recordStepResult(status);
 
         ExtentTest currentStep =
                 ReportEngine.getCurrentStep();
@@ -70,10 +68,6 @@ public class CucumberReportListener
         switch (status) {
 
             case PASSED -> {
-
-                // Nothing required here.
-                // PASS is already represented by the successful
-                // Cucumber step and any PASS report entries.
             }
 
             case FAILED -> {
@@ -199,5 +193,6 @@ public class CucumberReportListener
 
             ReportEngine.markScenarioPassed();
         }
+        ReportEngine.recordScenarioResult(finalFailed);
     }
 }

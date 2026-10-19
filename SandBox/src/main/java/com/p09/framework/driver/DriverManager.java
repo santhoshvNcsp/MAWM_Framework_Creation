@@ -26,22 +26,13 @@ public final class DriverManager {
         WebDriver webDriver =
                 DriverFactory.createDriver(
                         BrowserContext.getBrowser());
-
         driver.set(webDriver);
-
-        /*
-         * Normal UI wait
-         */
         wait.set(new WebDriverWait(
                 webDriver,
                 Duration.ofSeconds(
                         ConfigManager.getInt(
                                 "explicit.wait")
                 )));
-
-        /*
-         * Fluent wait for business/status validation
-         */
         fluentWait.set(
                 new FluentWait<>(webDriver)
                         .withTimeout(
@@ -56,42 +47,30 @@ public final class DriverManager {
                                 ))
         );
     }
-
     public static WebDriver getDriver() {
-
         WebDriver webDriver =
                 driver.get();
-
         if (webDriver == null) {
-
             throw new IllegalStateException(
                     "WebDriver has not been initialized.");
         }
-
         return webDriver;
     }
 
     public static WebDriverWait getWait() {
-
         return wait.get();
     }
 
     public static FluentWait<WebDriver> getFluentWait() {
-
         return fluentWait.get();
     }
 
     public static void quitDriver() {
-
         if (driver.get() != null) {
-
             driver.get().quit();
-
             driver.remove();
         }
-
         wait.remove();
-
         fluentWait.remove();
     }
 }

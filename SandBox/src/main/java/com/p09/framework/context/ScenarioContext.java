@@ -1,10 +1,7 @@
 package com.p09.framework.context;
-
 import java.util.HashMap;
 import java.util.Map;
-
 public final class ScenarioContext {
-
     private static final ThreadLocal<Map<String, Object>> context =
             ThreadLocal.withInitial(HashMap::new);
 
@@ -20,9 +17,7 @@ public final class ScenarioContext {
     }
 
     public static String getString(String key) {
-
         Object value = context.get().get(key);
-
         return value == null ? null : value.toString();
 
     }
@@ -30,10 +25,12 @@ public final class ScenarioContext {
     public static void clear() {
         context.remove();
     }
+
     public static void printAll() {
         context.get().forEach((key, value) ->
                 System.out.println("Key: " + key + " | Value: " + value));
     }
+
     public static Map<String, Object> getAll() {
         return new HashMap<>(context.get());
     }

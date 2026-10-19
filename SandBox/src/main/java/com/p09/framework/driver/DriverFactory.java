@@ -27,25 +27,30 @@ public final class DriverFactory {
 
                 if (ConfigManager.getBoolean("headless")) {
                     chromeOptions.addArguments("--headless=new");
+                    chromeOptions.addArguments("--window-size=1920,1080");
                 }
 
                 chromeOptions.addArguments("--start-maximized");
 
                 return new ChromeDriver(chromeOptions);
 
-            case "edge":
-
-                WebDriverManager.edgedriver().setup();
-
+            case "edge": {
                 EdgeOptions edgeOptions = new EdgeOptions();
 
                 if (ConfigManager.getBoolean("headless")) {
                     edgeOptions.addArguments("--headless=new");
+                    edgeOptions.addArguments("--window-size=1920,1080");
+                } else {
+                    edgeOptions.addArguments("--start-maximized");
                 }
 
-                edgeOptions.addArguments("--start-maximized");
+                System.setProperty(
+                        "webdriver.edge.driver",
+                        "D:\\WebDrivers\\Edge\\msedgedriver.exe"
+                );
 
                 return new EdgeDriver(edgeOptions);
+            }
 
             case "firefox":
 
@@ -55,6 +60,7 @@ public final class DriverFactory {
 
                 if (ConfigManager.getBoolean("headless")) {
                     firefoxOptions.addArguments("-headless");
+                    firefoxOptions.addArguments("--window-size=1920,1080");
                 }
 
                 return new FirefoxDriver(firefoxOptions);

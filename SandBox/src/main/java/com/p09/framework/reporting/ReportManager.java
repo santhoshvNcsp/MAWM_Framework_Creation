@@ -87,13 +87,6 @@ public final class ReportManager {
 
             ReportEngine.markScenarioFailure();
         }
-
-        // Existing framework behavior preserved.
-        //
-        // false = stop immediately
-        // true  = continue execution, but final scenario
-        //         will still be FAILED because scenarioFailed
-        //         is tracked in ReportEngine.
         if (!ConfigManager.getBoolean("continue.on.failure")) {
 
             throw new RuntimeException(message);
@@ -103,10 +96,6 @@ public final class ReportManager {
     public void failWithScreenshot(
             String message,
             String screenshotPath) {
-
-        // Mark the scenario failed FIRST.
-        // This ensures that even if screenshot attachment fails,
-        // the scenario is still considered failed.
         ReportEngine.markScenarioFailure();
 
         try {
@@ -237,11 +226,6 @@ public final class ReportManager {
     public void addReportStepWithScreenshot(
             StepStatus status,
             String message) {
-
-        // IMPORTANT:
-        // Mark the scenario failed BEFORE trying screenshot capture.
-        // Otherwise a screenshot-related exception could hide the
-        // original validation failure.
         if (status == StepStatus.FAIL) {
 
             ReportEngine.markScenarioFailure();
@@ -278,8 +262,6 @@ public final class ReportManager {
 
         } catch (Exception e) {
 
-            // Screenshot failed, but the requested report status
-            // still needs to be recorded.
             log(
                     status,
                     message
