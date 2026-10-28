@@ -898,7 +898,7 @@ public class OrdersPage extends BasePage {
                 assignPipeline
         );
 
-        Thread.sleep(4000);
+        Thread.sleep(8000);
 
 
         // =====================================================
@@ -1291,40 +1291,6 @@ public class OrdersPage extends BasePage {
             String orderId)
             throws InterruptedException {
 
-//        if (orderId == null || orderId.isBlank()) {
-//            throw new IllegalArgumentException(
-//                    "Order ID cannot be null or empty"
-//            );
-//        }
-//
-//        type(
-//                filterOrderByOrderId,
-//                orderId.trim()
-//        );
-//
-//        if (!orderId.trim().equalsIgnoreCase(
-//                getAttribute(
-//                        filterOrderByOrderId,
-//                        "value"
-//                ).trim()
-//        )) {
-//            throw new IllegalStateException(
-//                    "Order ID was not entered correctly while opening Order Lines. "
-//                            + "Expected: " + orderId
-//            );
-//        }
-//
-//        pressEnter(filterOrderByOrderId);
-//        Thread.sleep(2500);
-//
-//        wait.until(
-//                ExpectedConditions.visibilityOf(
-//                        clickOrderToRedirectRelatedLinks
-//                )
-//        );
-//
-//        click(clickOrderToRedirectRelatedLinks);
-//        Thread.sleep(1500);
 
         click(clickRelatedLinks);
         Thread.sleep(1000);
@@ -2681,5 +2647,32 @@ public class OrdersPage extends BasePage {
         System.out.println("Batch Ship Confirm completed. Orders: "
                 + expectedOrderIds + " | Statuses: " + finalStatuses);
     }
+
+    public void selectCurrentlyFilteredOrder(String expectedOrderId)
+            throws InterruptedException {
+        if (expectedOrderId == null || expectedOrderId.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Expected Order ID cannot be null or empty.");
+        }
+        String actualOrderId =
+                getAttribute(filterOrderByOrderId, "value");
+
+        if (actualOrderId == null
+                || !actualOrderId.trim()
+                .equalsIgnoreCase(expectedOrderId.trim())) {
+
+            throw new IllegalStateException(
+                    "The currently filtered order does not match the expected order. "
+                            + "Expected: " + expectedOrderId
+                            + " | Actual: " + actualOrderId);
+        }
+        wait.until(
+                ExpectedConditions.elementToBeClickable(
+                        clickOrderToRedirectRelatedLinks));
+
+        click(clickOrderToRedirectRelatedLinks);
+        Thread.sleep(1500);
+    }
+
 
 }

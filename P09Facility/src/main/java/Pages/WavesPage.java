@@ -2402,92 +2402,42 @@ public class WavesPage extends BasePage {
                         + tenOrAboveOrder.getOrderId()
                         + " | Priority: "
                         + tenOrAboveOrder.getOrderPriority());
-
-        // ---------------------------------------------------------
-        // 1. VALIDATE INITIAL WAVE oLPN STATUSES
-        //    <10  -> Packing
-        //    >=10 -> Packed
-        // ---------------------------------------------------------
-
         validateBatchOlpnStatuses(
                 originalWaveNumber,
                 belowTenOrder,
                 tenOrAboveOrder
         );
-
-        // ---------------------------------------------------------
-        // 2. GO TO ORDERS AND FILTER BOTH ORDERS TOGETHER
-        // ---------------------------------------------------------
-
         ordersPage.navigateToAnyUi("Orders");
         ordersPage.filterBatchOrders(batchOrders);
-
-        // ---------------------------------------------------------
-        // 3. VALIDATE THE TWO EXPECTED ORDER STATUSES
-        //    <10  -> Released
-        //    >=10 -> Packed
-        // ---------------------------------------------------------
 
         validateBatchOrderStatuses(
                 belowTenOrder,
                 tenOrAboveOrder
         );
-
-        // ---------------------------------------------------------
-        // 4. OPEN PRIORITY >= 10 ORDER -> ORDER LINES
-        //    Capture the current Order Lines page.
-        // ---------------------------------------------------------
-
         ordersPage.filterExistingOrder(
                 tenOrAboveOrder.getOrderId());
 
         captureBatchPackedOrderLineQuantity(
                 tenOrAboveOrder);
-
-        // ---------------------------------------------------------
-        // 5. RETURN TO ORDERS
-        // ---------------------------------------------------------
-
-//        ordersPage.navigateToAnyUi("Orders");
         if(isDisplayed(redirectToOrdersFromOrderLine)){
             click(redirectToOrdersFromOrderLine);
         }else {
             ordersPage.navigateToAnyUi("Orders");
         }
-
-        // ---------------------------------------------------------
-        // 6. OPEN PRIORITY < 10 ORDER -> ORDER LINES
-        //    Verify that a NEW Order Line exists after the partial pick.
-        // ---------------------------------------------------------
-
         ordersPage.filterExistingOrder(
                 belowTenOrder.getOrderId());
 
         captureBatchNewOrderLineAndScreenshot(
                 belowTenOrder);
-
-        // ---------------------------------------------------------
-        // 7. RUN CHASE FROM THE ORIGINAL WAVE
-        // ---------------------------------------------------------
-
         runChaseFromOriginalWave(
                 originalWaveNumber);
-
-        // ---------------------------------------------------------
-        // 8. RETURN TO ORDERS
-        //    Verify only the priority < 10 order is Allocated.
-        // ---------------------------------------------------------
-
         ordersPage.navigateToAnyUi("Orders");
 
         ordersPage.verifyOrderStatus(
                 belowTenOrder.getOrderId(),
                 "Allocated");
-
-        // ---------------------------------------------------------
-        // 9. OPEN THE NEW ORDER LINE
-        //    Capture the Chase Wave Number from Run Number.
-        // ---------------------------------------------------------
+        ordersPage.selectCurrentlyFilteredOrder(
+                belowTenOrder.getOrderId());
 
         String chaseWaveNumber =
                 ordersPage.captureChaseWaveNumberFromNewOrderLine(

@@ -272,7 +272,7 @@ public final class ReportEngine {
                         + "<br>Failed Steps: " + failed
                         + "<br>Skipped Steps: " + skipped
                         + "<br>Step Pass Percentage: "
-                        + String.format(Locale.ROOT, "%.2f%%", passPercentage)
+                        + formatPercentage(passPercentage)
                         + "<br>Execution Time: " + executionTime);
     }
 
@@ -286,6 +286,17 @@ public final class ReportEngine {
 
     private static double percentage(int passed, int total) {
         return total == 0 ? 0.0 : passed * 100.0 / total;
+    }
+
+    /**
+     * Displays whole-number percentages without decimal places and all other
+     * percentages with two decimal places (for example, 100% or 67.33%).
+     */
+    private static String formatPercentage(double percentage) {
+        if (percentage == Math.rint(percentage)) {
+            return String.format(Locale.ROOT, "%.0f%%", percentage);
+        }
+        return String.format(Locale.ROOT, "%.2f%%", percentage);
     }
 
     public static int getScenarioTotalSteps() {
@@ -365,7 +376,7 @@ public final class ReportEngine {
                                 </div>
                                 <div class="metric metric-purple">
                                     <div class="metric-label">Scenario Pass Rate</div>
-                                    <div class="metric-value">%.2f%%</div>
+                                    <div class="metric-value">%s</div>
                                 </div>
                                 <div class="metric metric-cyan">
                                     <div class="metric-label">Total Steps</div>
@@ -385,7 +396,7 @@ public final class ReportEngine {
                                 </div>
                                 <div class="metric metric-purple">
                                     <div class="metric-label">Step Pass Rate</div>
-                                    <div class="metric-value">%.2f%%</div>
+                                    <div class="metric-value">%s</div>
                                 </div>
                             </div>`;
 
@@ -634,14 +645,13 @@ public final class ReportEngine {
                 scenarios,
                 passed,
                 failed,
-                scenarioPercentage,
+                formatPercentage(scenarioPercentage),
                 steps,
                 stepsPassed,
                 stepsFailed,
                 stepsSkipped,
-                stepPercentage);
+                formatPercentage(stepPercentage));
 
         sparkReporter.config().setJs(dashboardScript);
     }
 }
-
